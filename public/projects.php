@@ -3,6 +3,13 @@
 include('../config/db.php');
 include('../includes/header.php');
 
+// Check if the user is logged in
+if (!isset($_SESSION['user_id'])) {
+    // Redirect to login page if user is not logged in
+    header("Location: /TaskTrackr/public/login.php");
+    exit();
+}
+
 // Get user ID from session
 $user_id = $_SESSION['user_id']; // Assumes session is already started
 
@@ -32,29 +39,17 @@ $category_result = $conn->query($category_query);
 <main>
     <h2>Your Projects</h2>
 
-    <?php
-// Display success or error messages if available
-if (isset($_SESSION['success_message'])) {
-    echo '<p style="color: green;">' . $_SESSION['success_message'] . '</p>';
-    unset($_SESSION['success_message']);
-}
-
-if (isset($_SESSION['error_message'])) {
-    echo '<p style="color: red;">' . $_SESSION['error_message'] . '</p>';
-    unset($_SESSION['error_message']);
-}
-?>
-
-
     <?php if ($project_result->num_rows > 0): ?>
-        <table /*border="1" cellpadding="10" cellspacing="0"*/>
+        <table border="1" cellpadding="10" cellspacing="0"> 
             <thead>
                 <tr>
                     <th>Project Title</th>
                     <th>Description</th>
                     <th>Deadline</th>
                     <th>Category</th>
-                    <!--<th>Actions</th> -->
+                    <th>Group</th>
+                    <th>Created By</th>
+                    <th>Actions</th> 
                 </tr>
             </thead>
             <tbody>
@@ -64,6 +59,30 @@ if (isset($_SESSION['error_message'])) {
                         <td><?= htmlspecialchars($project['description']) ?></td>
                         <td><?= htmlspecialchars($project['deadline']) ?></td>
                         <td><?= htmlspecialchars($project['name']) ?></td>
+                        <?php
+                            // Fetch group name if group_id is set
+                            if ($project['group_id']) {
+                                $group_query = "SELECT group_name FROM Groups WHERE group_id = ?";
+                                $group_stmt = $conn->prepare($group_query);
+                                $group_stmt->bind_param("i", $project['group_id']);
+                                $group_stmt->execute();
+                                $group_result = $group_stmt->get_result();
+                                $group = $group_result->fetch_assoc();
+                                $group_stmt->close();
+                            }
+                        ?>
+                        <td><?= isset($group['group_name']) ? htmlspecialchars($group['group_name']) : 'N/A' ?></td>
+                        <?php
+                            // Fetch user who created the project
+                            $created_by_query = "SELECT name FROM Users WHERE user_id = ?";
+                            $created_by_stmt = $conn->prepare($created_by_query);
+                            $created_by_stmt->bind_param("i", $project['created_by']);
+                            $created_by_stmt->execute();
+                            $created_by_result = $created_by_stmt->get_result();
+                            $created_by = $created_by_result->fetch_assoc();
+                            $created_by_stmt->close();
+                        ?>
+                        <td><?= htmlspecialchars($created_by['name']) ?></td>
                         <td>
                             <!-- Edit Link -->
                             <a href="../actions/edit_project.php?project_id=<?= $project['project_id'] ?>">Edit</a> |
@@ -98,6 +117,25 @@ if (isset($_SESSION['error_message'])) {
             <?php endwhile; ?>
         </select><br><br>
 
+        <label for="group">Group:</label><br>
+        <select id="group" name="group_id">
+            <option value="" <?= (!isset($project['group_id']) || is_null($project['group_id'])) ? 'selected' : '' ?>>No Group</option>
+            <?php
+                 // Join Groups table to get group names
+                $group_query = " SELECT g.group_id, g.group_name FROM Groups g 
+                                 INNER JOIN User_Groups ug ON g.group_id = ug.group_id 
+                                 WHERE ug.user_id = ?";
+
+                $group_stmt = $conn->prepare($group_query);
+                $group_stmt->bind_param("i", $user_id);
+                $group_stmt->execute();
+                $group_result = $group_stmt->get_result();
+
+                while ($group = $group_result->fetch_assoc()):
+            ?>
+                <option value="<?= $group['group_id'] ?>"><?= htmlspecialchars($group['group_name']) ?></option>
+            <?php endwhile; ?>
+        </select><br><br>
         <button type="submit">Create Project</button>
     </form>
 </main>

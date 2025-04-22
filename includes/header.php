@@ -14,7 +14,6 @@ if (session_status() === PHP_SESSION_NONE) {
 <body>
     <header>
         <h1>TaskTrackr</h1>
-
         <?php if (isset($_SESSION['user_id'])): ?>
             <nav>
                 <ul class="navbar">
@@ -35,4 +34,7 @@ if (session_status() === PHP_SESSION_NONE) {
 
         <hr>
     </header>
+        <div class="container">
+        <?php include('../includes/alerts.php'); ?>
+        </div>
     <main>

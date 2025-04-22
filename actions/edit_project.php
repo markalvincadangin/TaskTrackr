@@ -74,6 +74,28 @@ $category_result = $conn->query($category_query);
             <?php } ?>
         </select>
 
+        <label for="group">Group:</label><br>
+        <select id="group" name="group_id">
+            <option value="" <?= is_null($project['group_id']) ? 'selected' : '' ?>>No Group</option>
+            <?php
+                 // Join Groups table to get group names
+                $group_query = " SELECT g.group_id, g.group_name FROM Groups g 
+                                 INNER JOIN User_Groups ug ON g.group_id = ug.group_id 
+                                 WHERE ug.user_id = ?";
+
+                $group_stmt = $conn->prepare($group_query);
+                $group_stmt->bind_param("i", $user_id);
+                $group_stmt->execute();
+                $group_result = $group_stmt->get_result();
+
+                while ($group = $group_result->fetch_assoc()):
+            ?>
+                <option value="<?= $group['group_id'] ?>" <?= $group['group_id'] == $project['group_id'] ? 'selected' : '' ?>> 
+                    <?= htmlspecialchars($group['group_name']) ?>
+                </option>
+            <?php endwhile; ?>
+        </select><br><br>
+
         <button type="submit">Update Project</button>
     </form>
 </main>

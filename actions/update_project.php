@@ -16,19 +16,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $description = $_POST['description'];
     $deadline = $_POST['deadline'];
     $category_id = $_POST['category'];
+    $group_id = $_POST['group_id']; 
     $user_id = $_SESSION['user_id'];  // Get the logged-in user's ID
 
-    // Validate input (ensure all fields are filled)
-    if (empty($title) || empty($description) || empty($deadline) || empty($category_id)) {
-        $_SESSION['error_message'] = 'All fields are required.';
-        header("Location: /TaskTrackr/actions/edit_project.php?project_id=" . $project_id);
-        exit();
-    }
+
+    $group_id = empty($_POST['group_id']) ? null : $_POST['group_id']; // Set to NULL if not provided
 
     // Prepare SQL query to update project details
-    $query = "UPDATE Projects SET title = ?, description = ?, deadline = ?, category_id = ? WHERE project_id = ? AND created_by = ?";
+    $query = "UPDATE Projects SET title = ?, description = ?, deadline = ?, category_id = ?, group_id = ? WHERE project_id = ? AND created_by = ?";
     $stmt = $conn->prepare($query);
-    $stmt->bind_param("sssiii", $title, $description, $deadline, $category_id, $project_id, $user_id);
+    $stmt->bind_param("sssiiii", $title, $description, $deadline, $category_id, $group_id, $project_id, $user_id);
     $result = $stmt->execute();
 
     if ($result) {
