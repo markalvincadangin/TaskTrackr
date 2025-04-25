@@ -9,6 +9,22 @@ $current_page = basename($_SERVER['PHP_SELF']);
 
 // Provide a fallback value for the username if not logged in
 $username = isset($_SESSION['name']) ? htmlspecialchars($_SESSION['name']) : "Guest";
+
+// Fetch the profile picture if the user is logged in
+$profile_picture = "/TaskTrackr/assets/images/default-profile.png"; // Default profile picture
+if (isset($_SESSION['user_id'])) {
+    include_once('../config/db.php');
+    $user_id = $_SESSION['user_id'];
+    $query = "SELECT profile_picture FROM Users WHERE user_id = ?";
+    $stmt = $conn->prepare($query);
+    $stmt->bind_param("i", $user_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $user = $result->fetch_assoc();
+    if (!empty($user['profile_picture'])) {
+        $profile_picture = htmlspecialchars($user['profile_picture']);
+    }
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -53,7 +69,7 @@ $username = isset($_SESSION['name']) ? htmlspecialchars($_SESSION['name']) : "Gu
                     <!-- Profile Dropdown -->
                     <div class="dropdown">
                         <button class="btn btn-light dropdown-toggle d-flex align-items-center" type="button" id="profileDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                            <img src="/TaskTrackr/assets/images/avatar-placeholder.png" alt="Profile" class="rounded-circle me-2" style="width: 30px; height: 30px;">
+                            <img src="<?= $profile_picture ?>" alt="Profile" class="rounded-circle me-2" style="width: 30px; height: 30px;">
                             <span><?php echo $username; ?></span>
                         </button>
                         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="profileDropdown">

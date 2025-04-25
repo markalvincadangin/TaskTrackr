@@ -10,8 +10,20 @@ CREATE TABLE IF NOT EXISTS Users (
     name VARCHAR(255) NOT NULL,
     email VARCHAR(255) NOT NULL UNIQUE,
     password VARCHAR(255) NOT NULL,
+    profile_picture VARCHAR(255), -- Path to the profile picture
     role ENUM('user', 'admin') DEFAULT 'user',
     date_created DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+-- User_Settings Table
+CREATE TABLE IF NOT EXISTS User_Settings (
+    user_id INT PRIMARY KEY,
+    task_alerts TINYINT(1) DEFAULT 1, -- 1 = Enabled, 0 = Disabled
+    deadline_reminders TINYINT(1) DEFAULT 1, -- 1 = Enabled, 0 = Disabled
+    email_notifications TINYINT(1) DEFAULT 1, -- 1 = Enabled, 0 = Disabled
+    dark_mode TINYINT(1) DEFAULT 0, -- 1 = Enabled, 0 = Disabled
+    FOREIGN KEY (user_id) REFERENCES Users(user_id)
+        ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 -- Categories Table

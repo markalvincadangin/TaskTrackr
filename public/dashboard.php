@@ -72,6 +72,10 @@ while ($task = $upcoming_tasks_result->fetch_assoc()) {
 <div class="d-flex">
     <?php include('../includes/sidebar.php'); ?>
     <div class="main-content flex-grow-1 p-4">
+
+        <!-- Alerts -->
+        <?php include('../includes/alerts.php'); ?>
+
         <!-- 👋 Welcome Section -->
         <div class="welcome-section mb-4">
             <h2>Hello, <?php echo htmlspecialchars($_SESSION['name']); ?>!</h2>

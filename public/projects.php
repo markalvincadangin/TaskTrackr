@@ -41,6 +41,9 @@ $category_result = $conn->query($category_query);
     <div class="main-content flex-grow-1 p-4">
         <h2 class="mb-4">Your Projects</h2>
 
+        <!-- Display Alerts -->
+        <?php include('../includes/alerts.php'); ?>
+
         <!-- Display Projects -->
         <?php if ($project_result->num_rows > 0): ?>
             <div class="table-responsive">
