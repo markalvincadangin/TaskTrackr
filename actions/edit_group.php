@@ -1,7 +1,9 @@
 <?php
 session_start();
 include('../config/db.php');
+include('../includes/header.php');
 
+// Ensure user is logged in
 if (!isset($_SESSION['user_id'])) {
     header("Location: /TaskTrackr/public/login.php");
     exit();
@@ -9,8 +11,10 @@ if (!isset($_SESSION['user_id'])) {
 
 $user_id = $_SESSION['user_id'];
 
+// Check if group ID is provided
 if (!isset($_GET['group_id']) || empty($_GET['group_id'])) {
-    echo "No group specified.";
+    $_SESSION['error_message'] = "No group specified.";
+    header("Location: ../public/groups.php");
     exit();
 }
 
@@ -24,14 +28,17 @@ $stmt->execute();
 $group_result = $stmt->get_result();
 
 if ($group_result->num_rows === 0) {
-    echo "Group not found.";
+    $_SESSION['error_message'] = "Group not found.";
+    header("Location: ../public/groups.php");
     exit();
 }
 
 $group = $group_result->fetch_assoc();
 
+// Ensure the user is the creator of the group
 if ($group['created_by'] != $user_id) {
-    echo "You are not authorized to edit this group.";
+    $_SESSION['error_message'] = "You are not authorized to edit this group.";
+    header("Location: ../public/groups.php");
     exit();
 }
 
@@ -127,53 +134,69 @@ $members_stmt->execute();
 $members_result = $members_stmt->get_result();
 ?>
 
-<main>
-    <h2>Edit Group</h2>
+<div class="d-flex">
+    <?php include('../includes/sidebar.php'); ?>
+    <div class="main-content flex-grow-1 p-4">
+        <h2 class="mb-4 text-center">Edit Group: <?= htmlspecialchars($group['group_name']) ?></h2>
 
-    <?php include('../includes/alerts.php'); ?>
-    
-    <button onclick="window.location.href='../public/groups.php'">Back</button><br><br>
+        <!-- Display Alerts -->
+        <?php include('../includes/alerts.php'); ?>
 
-    <!-- Edit Group Name -->
-    <form method="POST">
-        <label for="group_name">Group Name:</label><br>
-        <input type="text" name="group_name" value="<?= htmlspecialchars($group['group_name']) ?>" required><br><br>
-        <button type="submit" name="update_group">Update Group Name</button>
-    </form>
+        <!-- Edit Group Name -->
+        <form method="POST" class="mb-4">
+            <div class="mb-3">
+                <label for=group_name" class="form-label">Group Name</label>
+                <input type="text" name="group_name" id="group_name" class="form-control" value="<?= htmlspecialchars($group['group_name']) ?>" required>
+            </div>
+            <button type="submit" name="update_group" class="btn btn-primary">Update Group Name</button>
+        </form>
 
-    <hr>
+        <hr>
 
-    <!-- Add Members -->
-    <h3>Add Members by Email</h3>
-    <form method="POST">
-        <div id="emailFields">
-            <input type="email" name="member_emails[]" required><br>
-        </div>
-        <button type="button" id="addMemberBtn">Add More</button><br><br>
-        <button type="submit" name="add_members">Add Members</button>
-    </form>
+        <!-- Add Members -->
+        <h3 class="mt-4">Add Members by Email</h3>
+        <form method="POST" class="mb-4">
+            <div id="emailFields" class="mb-3">
+                <input type="email" name="member_emails[]" class="form-control mb-2" placeholder="Enter member email" required>
+            </div>
+            <button type="button" id="addMemberBtn" class="btn btn-secondary btn-sm">Add More Field</button><br>
+            <button type="submit" name="add_members" class="btn btn-primary mt-3">Add Members</button>
+        </form>
 
-    <hr>
+        <hr>
 
-    <!-- Current Members -->
-    <h3>Current Members</h3>
-    <ul>
-        <?php while ($member = $members_result->fetch_assoc()): ?>
-            <li>
-                <?= htmlspecialchars($member['email']) ?>
-                <?php if ($member['user_id'] != $group['created_by']): ?>
-                    <form method="POST" style="display:inline;">
-                        <input type="hidden" name="remove_user_id" value="<?= $member['user_id'] ?>">
-                        <button type="submit" onclick="return confirm('Remove this member?')">Remove</button>
-                    </form>
-                <?php else: ?>
-                    (Creator)
-                <?php endif; ?>
-            </li>
-        <?php endwhile; ?>
-    </ul>
-</main>
+        <!-- Current Members -->
+        <h3 class="mt-4">Current Members</h3>
+        <ul class="list-group">
+            <?php while ($member = $members_result->fetch_assoc()): ?>
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <?= htmlspecialchars($member['email']) ?>
+                    <?php if ($member['user_id'] != $group['created_by']): ?>
+                        <form method="POST" class="d-inline">
+                            <input type="hidden" name="remove_user_id" value="<?= $member['user_id'] ?>">
+                            <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Remove this member?')">Remove</button>
+                        </form>
+                    <?php else: ?>
+                        <span class="badge bg-success">Creator</span>
+                    <?php endif; ?>
+                </li>
+            <?php endwhile; ?>
+        </ul>
+    </div>
+</div>
 
-<script src="../assets/js/add_group_members.js"></script>
+<script>
+    // Add more email fields dynamically
+    document.getElementById('addMemberBtn').addEventListener('click', function () {
+        const emailFieldsContainer = document.getElementById('emailFields');
+        const newEmailField = document.createElement('input');
+        newEmailField.type = 'email';
+        newEmailField.name = 'member_emails[]';
+        newEmailField.className = 'form-control mb-2';
+        newEmailField.placeholder = 'Enter member email';
+        newEmailField.required = true;
+        emailFieldsContainer.appendChild(newEmailField);
+    });
+</script>
 
 <?php include('../includes/footer.php'); ?>
