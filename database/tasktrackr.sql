@@ -1,4 +1,7 @@
--- TaskTrackr Database
+-- TaskTrackr Database Schema
+-- This SQL script creates the database and tables for the TaskTrackr application.
+
+
 CREATE DATABASE IF NOT EXISTS tasktrackr;
 USE tasktrackr;
 
