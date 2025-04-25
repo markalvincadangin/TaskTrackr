@@ -88,3 +88,19 @@ CREATE TABLE IF NOT EXISTS Notifications (
     FOREIGN KEY (user_id) REFERENCES Users(user_id)
         ON DELETE CASCADE ON UPDATE CASCADE
 );
+
+-- Insert default categories
+-- These categories can be modified or expanded as needed
+-- You can remove or modify this section as per your requirements
+
+INSERT INTO Categories (name, description) VALUES
+    ('Homework', 'Assignments and homework tasks for school or college'),
+    ('Presentations', 'Tasks related to preparing and delivering presentations'),
+    ('Research', 'Tasks involving research for academic or personal projects'),
+    ('Projects', 'Group or individual projects for classes or extracurricular activities'),
+    ('Personal', 'Personal tasks and to-dos'),
+    ('Work', 'Tasks related to work or professional projects'),
+    ('Health', 'Tasks related to health and fitness'),
+    ('Finance', 'Financial tasks, budgeting, and expenses'),
+    ('Travel', 'Travel planning and itinerary tasks'),
+    ('Miscellaneous', 'Other tasks that do not fit into the above categories');

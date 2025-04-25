@@ -17,7 +17,11 @@ TaskTrackr is a lightweight task management application designed to help users o
     ```
 2. Navigate to the project directory:
     ```bash
-    cd TaskTrackr
+    cd path/to/TaskTrackr
+    ```
+   Replace `path/to/TaskTrackr` with the actual path where you cloned the repository. For example, if you cloned it into `C:\xampp\htdocs`, use:
+    ```bash
+    cd C:\xampp\htdocs\TaskTrackr
     ```
 
 ## Setup Instructions
@@ -39,7 +43,7 @@ TaskTrackr is a lightweight task management application designed to help users o
       - Click `Go` to import the schema.
 
 ### 3. Configure the Application
-   - Open the `config.php` file in the project directory.
+   - Open the `db.php` file in the project directory.
    - Update the database connection settings if necessary:
      ```php
      // filepath: c:\xampp\htdocs\TaskTrackr\config\db.php
