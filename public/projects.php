@@ -84,10 +84,23 @@ $category_result = $conn->query($category_query);
                         ?>
                         <td><?= htmlspecialchars($created_by['name']) ?></td>
                         <td>
-                            <!-- Edit Link -->
-                            <a href="../actions/edit_project.php?project_id=<?= $project['project_id'] ?>">Edit</a> |
-                            <!-- Delete Link -->
-                            <a href="../actions/delete_project.php?project_id=<?= $project['project_id'] ?>" onclick="return confirm('Are you sure you want to delete this project?');">Delete</a>
+                            <!-- View Tasks Button -->
+                             <form action="../actions/view_tasks.php" method="POST" style="display:inline;">
+                                <input type="hidden" name="project_id" value="<?= $project['project_id'] ?>">
+                                <button type="submit">View Tasks</button>
+                             </form>
+
+                            <!-- Edit Button -->
+                            <form action="../actions/edit_project.php" method="GET" style="display:inline;">
+                                <input type="hidden" name="project_id" value="<?= $project['project_id'] ?>">
+                                <button type="submit">Edit</button>
+                            </form>
+
+                            <!-- Delete Button -->
+                            <form action="../actions/delete_project.php" method="GET" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete this project?');">
+                                <input type="hidden" name="project_id" value="<?= $project['project_id'] ?>">
+                                <button type="submit" style="background-color:red; color:white;">Delete</button>
+                            </form>
                         </td>
                     </tr>
                 <?php endwhile; ?>

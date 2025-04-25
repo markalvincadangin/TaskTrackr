@@ -42,16 +42,15 @@ $category_query = "SELECT * FROM Categories";
 $category_result = $conn->query($category_query);
 ?>
 
+<!-- Display error or success messages -->
+<div class="container">
+<?php include('../includes/alerts.php'); ?>
+</div>
+
 <main>
     <h2>Edit Project</h2>
 
-    <!-- Display error or success messages -->
-    <?php
-    if (isset($_SESSION['error_message'])) {
-        echo '<p class="error">' . $_SESSION['error_message'] . '</p>';
-        unset($_SESSION['error_message']);
-    }
-    ?>
+
 
     <form action="../actions/update_project.php" method="POST">
         <input type="hidden" name="project_id" value="<?php echo $project['project_id']; ?>">
