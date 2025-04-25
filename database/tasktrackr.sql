@@ -1,7 +1,6 @@
 -- TaskTrackr Database Schema
 -- This SQL script creates the database and tables for the TaskTrackr application.
 
-
 CREATE DATABASE IF NOT EXISTS tasktrackr;
 USE tasktrackr;
 
@@ -68,7 +67,7 @@ CREATE TABLE IF NOT EXISTS Tasks (
     description TEXT NOT NULL,
     due_date DATE NOT NULL,
     priority ENUM('Low', 'Medium', 'High') NOT NULL DEFAULT 'Medium',
-    status ENUM('Pending', 'In Progress', 'Done') NOT NULL DEFAULT 'Pending',
+    status ENUM('Pending', 'In Progress', 'Done', 'Overdue') NOT NULL DEFAULT 'Pending',
     project_id INT,
     assigned_to INT,
     date_created DATETIME DEFAULT CURRENT_TIMESTAMP,
@@ -89,10 +88,18 @@ CREATE TABLE IF NOT EXISTS Notifications (
         ON DELETE CASCADE ON UPDATE CASCADE
 );
 
--- Insert default categories
--- These categories can be modified or expanded as needed
--- You can remove or modify this section as per your requirements
+-- Audit Logs Table
+CREATE TABLE IF NOT EXISTS Audit_Logs (
+    log_id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT,
+    action VARCHAR(255) NOT NULL,
+    details TEXT,
+    date_created DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES Users(user_id)
+        ON DELETE SET NULL ON UPDATE CASCADE
+);
 
+-- Insert default categories
 INSERT INTO Categories (name, description) VALUES
     ('Homework', 'Assignments and homework tasks for school or college'),
     ('Presentations', 'Tasks related to preparing and delivering presentations'),
