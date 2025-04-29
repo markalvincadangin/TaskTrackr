@@ -13,18 +13,14 @@ if (!isset($_SESSION['user_id'])) {
 
 $user_id = $_SESSION['user_id'];
 
-// Fetch user settings
-$query = "SELECT task_alerts, deadline_reminders, email_notifications, dark_mode FROM User_Settings WHERE user_id = ?";
+// Fetch user settings (now only fetch reminder_days_before)
+$query = "SELECT reminder_days_before FROM User_Settings WHERE user_id = ?";
 $stmt = $conn->prepare($query);
 $stmt->bind_param("i", $user_id);
 $stmt->execute();
 $settings = $stmt->get_result()->fetch_assoc();
 
-// Set default values if no settings exist
-$task_alerts = $settings['task_alerts'] ?? 1;
-$deadline_reminders = $settings['deadline_reminders'] ?? 1;
-$email_notifications = $settings['email_notifications'] ?? 0;
-$dark_mode = $settings['dark_mode'] ?? 0;
+$reminder_days_before = $settings['reminder_days_before'] ?? 1;
 ?>
 
 <div class="d-flex">
@@ -32,52 +28,37 @@ $dark_mode = $settings['dark_mode'] ?? 0;
     <?php include('../includes/sidebar.php'); ?>
 
     <!-- Main Content -->
-    <main class="flex-grow-1 p-4" style="margin-left: 250px;">
-        <h2 class="mb-4">⚙️ Settings</h2>
+    <div class="main-content flex-grow-1 p-4" style="margin-left: 250px;">
+        <h2 class="mb-4"><i class="bi bi-gear me-2"></i>Settings</h2>
 
         <!-- Alerts -->
         <?php include('../includes/alerts.php'); ?>
 
-        <!-- Notification Preferences -->
-        <div class="card mb-4 shadow-sm">
-            <div class="card-header bg-light">
-                <h5 class="mb-0">🔔 Notification Preferences</h5>
-            </div>
-            <div class="card-body">
-                <form action="../actions/update_notifications.php" method="POST">
-                    <div class="form-check form-switch mb-3">
-                        <input class="form-check-input" type="checkbox" id="taskAlerts" name="task_alerts" <?= $task_alerts ? 'checked' : '' ?>>
-                        <label class="form-check-label" for="taskAlerts">Task Assignment Alerts</label>
+        <div class="row justify-content-center">
+            <div class="col-lg-7 col-md-10">
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-light d-flex align-items-center">
+                        <i class="bi bi-bell me-2"></i>
+                        <h5 class="mb-0">Task Reminder</h5>
                     </div>
-                    <div class="form-check form-switch mb-3">
-                        <input class="form-check-input" type="checkbox" id="deadlineReminders" name="deadline_reminders" <?= $deadline_reminders ? 'checked' : '' ?>>
-                        <label class="form-check-label" for="deadlineReminders">Deadline Reminders</label>
+                    <div class="card-body">
+                        <form action="../actions/update_settings.php" method="POST">
+                            <div class="mb-4">
+                                <label for="reminder_days_before" class="form-label fw-semibold">
+                                    Remind me about tasks this many days before the due date:
+                                </label>
+                                <input type="number" min="1" max="30" class="form-control w-50" id="reminder_days_before" name="reminder_days_before" value="<?= htmlspecialchars($reminder_days_before) ?>" required>
+                                <div class="form-text">You will receive reminders this many days before a task is due.</div>
+                            </div>
+                            <button type="submit" class="btn btn-primary w-100">
+                                <i class="bi bi-save me-1"></i> Save Changes
+                            </button>
+                        </form>
                     </div>
-                    <div class="form-check form-switch mb-3">
-                        <input class="form-check-input" type="checkbox" id="emailNotifications" name="email_notifications" <?= $email_notifications ? 'checked' : '' ?>>
-                        <label class="form-check-label" for="emailNotifications">Email Notifications</label>
-                    </div>
-                    <button type="submit" class="btn btn-primary">Save Preferences</button>
-                </form>
-            </div>
-        </div>
-
-        <!-- Appearance & Personalization -->
-        <div class="card mb-4 shadow-sm">
-            <div class="card-header bg-light">
-                <h5 class="mb-0">🎨 Appearance & Personalization</h5>
-            </div>
-            <div class="card-body">
-                <form action="../actions/update_appearance.php" method="POST">
-                    <div class="form-check form-switch mb-3">
-                        <input class="form-check-input" type="checkbox" id="darkMode" name="dark_mode" <?= $dark_mode ? 'checked' : '' ?>>
-                        <label class="form-check-label" for="darkMode">Enable Dark Mode</label>
-                    </div>
-                    <button type="submit" class="btn btn-primary">Save Changes</button>
-                </form>
+                </div>
             </div>
         </div>
-    </main>
+    </div>
 </div>
 
 <?php include('../includes/footer.php'); ?>

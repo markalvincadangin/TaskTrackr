@@ -1,6 +1,7 @@
 <?php
 session_start(); // required for using $_SESSION
 include '../config/db.php';
+include_once('../includes/email_sender.php');
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $name     = trim($_POST['name']);
@@ -38,6 +39,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt->bind_param("sss", $name, $email, $hashedPassword);
 
         if ($stmt->execute()) {
+            $new_user_id = $stmt->insert_id;
+
+            // After successful registration and before redirecting
+            $notify_query = "INSERT INTO Notifications (user_id, message) VALUES (?, ?)";
+            $notify_stmt = $conn->prepare($notify_query);
+            $message = "Welcome to TaskTrackr! Your account has been created.";
+            $notify_stmt->bind_param("is", $new_user_id, $message);
+            $notify_stmt->execute();
+
+            if ($email) {
+                $subject = "Welcome to TaskTrackr!";
+                $body = $message;
+                sendUserEmail($email, $subject, $body);
+            }
+
             $_SESSION['success_message'] = 'Registration successful. Please log in.';
             header("Location: ../public/login.php");
             exit();

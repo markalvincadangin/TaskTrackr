@@ -1,6 +1,7 @@
 <?php
 session_start();
 include('../config/db.php');
+include_once('../includes/email_sender.php');
 
 // Check if user is logged in
 if (!isset($_SESSION['user_id'])) {
@@ -30,6 +31,29 @@ if ($result->num_rows === 0) {
     $_SESSION['error_message'] = "You are not authorized to delete this group.";
     header("Location: ../public/groups.php");
     exit();
+}
+
+// Before deleting the group
+$members_query = "SELECT u.user_id, u.email FROM Users u
+                  JOIN User_Groups ug ON u.user_id = ug.user_id
+                  WHERE ug.group_id = ?";
+$members_stmt = $conn->prepare($members_query);
+$members_stmt->bind_param("i", $group_id);
+$members_stmt->execute();
+$members_result = $members_stmt->get_result();
+
+while ($member = $members_result->fetch_assoc()) {
+    $notify_query = "INSERT INTO Notifications (user_id, message) VALUES (?, ?)";
+    $notify_stmt = $conn->prepare($notify_query);
+    $message = "The group you belonged to has been deleted.";
+    $notify_stmt->bind_param("is", $member['user_id'], $message);
+    $notify_stmt->execute();
+
+    if ($member['email']) {
+        $subject = "Group Deleted";
+        $body = $message;
+        sendUserEmail($member['email'], $subject, $body);
+    }
 }
 
 // Start transaction

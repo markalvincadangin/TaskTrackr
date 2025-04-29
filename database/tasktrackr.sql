@@ -18,10 +18,7 @@ CREATE TABLE IF NOT EXISTS Users (
 -- User_Settings Table
 CREATE TABLE IF NOT EXISTS User_Settings (
     user_id INT PRIMARY KEY,
-    task_alerts TINYINT(1) DEFAULT 1, -- 1 = Enabled, 0 = Disabled
-    deadline_reminders TINYINT(1) DEFAULT 1, -- 1 = Enabled, 0 = Disabled
-    email_notifications TINYINT(1) DEFAULT 1, -- 1 = Enabled, 0 = Disabled
-    dark_mode TINYINT(1) DEFAULT 0, -- 1 = Enabled, 0 = Disabled
+    reminder_days_before INT DEFAULT 1, -- How many days before due date to remind
     FOREIGN KEY (user_id) REFERENCES Users(user_id)
         ON DELETE CASCADE ON UPDATE CASCADE
 );
@@ -83,6 +80,7 @@ CREATE TABLE IF NOT EXISTS Tasks (
     project_id INT,
     assigned_to INT,
     date_created DATETIME DEFAULT CURRENT_TIMESTAMP,
+    last_reminder_sent DATE NULL DEFAULT NULL,
     FOREIGN KEY (project_id) REFERENCES Projects(project_id)
         ON DELETE SET NULL ON UPDATE CASCADE,
     FOREIGN KEY (assigned_to) REFERENCES Users(user_id)
@@ -98,17 +96,6 @@ CREATE TABLE IF NOT EXISTS Notifications (
     date_created DATETIME DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES Users(user_id)
         ON DELETE CASCADE ON UPDATE CASCADE
-);
-
--- Audit Logs Table
-CREATE TABLE IF NOT EXISTS Audit_Logs (
-    log_id INT AUTO_INCREMENT PRIMARY KEY,
-    user_id INT,
-    action VARCHAR(255) NOT NULL,
-    details TEXT,
-    date_created DATETIME DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES Users(user_id)
-        ON DELETE SET NULL ON UPDATE CASCADE
 );
 
 -- Insert default categories

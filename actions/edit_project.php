@@ -94,7 +94,7 @@ $category_result = $conn->query($category_query);
                     <div class="mb-3">
                         <label for="group" class="form-label">Group</label>
                         <select id="group" name="group_id" class="form-select">
-                            <option value="" <?= is_null($project['group_id']) ? 'selected' : '' ?>>No Group</option>
+                            <option value="" <?= is_null($project['group_id']) ? 'selected' : '' ?>>Individual</option>
                             <?php
                                 // Fetch groups the user belongs to
                                 $group_query = "SELECT g.group_id, g.group_name FROM Groups g 

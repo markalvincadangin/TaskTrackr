@@ -33,6 +33,16 @@ if ($result->num_rows === 0) {
 }
 
 $task = $result->fetch_assoc();
+
+// Fetch project group and creator info
+$project_query = "SELECT group_id, created_by FROM Projects WHERE project_id = ?";
+$project_stmt = $conn->prepare($project_query);
+$project_stmt->bind_param("i", $project_id);
+$project_stmt->execute();
+$project_result = $project_stmt->get_result();
+$project_row = $project_result->fetch_assoc();
+$group_id = $project_row['group_id'];
+$creator_id = $project_row['created_by'];
 ?>
 
 <div class="d-flex">
@@ -87,37 +97,33 @@ $task = $result->fetch_assoc();
                         </select>
                     </div>
 
-                    <!-- Assign To -->
-                    <div class="mb-3">
-                        <label for="assign_to" class="form-label">Assign To</label>
-                        <select id="assign_to" name="assign_to" class="form-select" required>
-                            <option value="">-- Select Member --</option>
-                            <?php
-                            // Fetch group members and list them
-                            $group_query = "SELECT group_id FROM Projects WHERE project_id = ?";
-                            $group_stmt = $conn->prepare($group_query);
-                            $group_stmt->bind_param("i", $project_id);
-                            $group_stmt->execute();
-                            $group_result = $group_stmt->get_result();
-                            $group_row = $group_result->fetch_assoc();
-                            $group_id = $group_row['group_id'];
+                    <?php if (!empty($group_id)): ?>
+                        <!-- Assign To (Group Project) -->
+                        <div class="mb-3">
+                            <label for="assign_to" class="form-label">Assign To</label>
+                            <select id="assign_to" name="assign_to" class="form-select" required>
+                                <option value="">-- Select Member --</option>
+                                <?php
+                                // Fetch members of that group
+                                $member_query = "SELECT u.user_id, u.name 
+                                                 FROM Users u 
+                                                 INNER JOIN User_Groups ug ON u.user_id = ug.user_id 
+                                                 WHERE ug.group_id = ?";
+                                $member_stmt = $conn->prepare($member_query);
+                                $member_stmt->bind_param("i", $group_id);
+                                $member_stmt->execute();
+                                $members_result = $member_stmt->get_result();
 
-                            // Fetch members of that group
-                            $member_query = "SELECT u.user_id, u.name 
-                                             FROM Users u 
-                                             INNER JOIN User_Groups ug ON u.user_id = ug.user_id 
-                                             WHERE ug.group_id = ?";
-                            $member_stmt = $conn->prepare($member_query);
-                            $member_stmt->bind_param("i", $group_id);
-                            $member_stmt->execute();
-                            $members_result = $member_stmt->get_result();
-
-                            while ($member = $members_result->fetch_assoc()):
-                            ?>
-                                <option value="<?= $member['user_id'] ?>" <?= $task['assigned_to'] == $member['user_id'] ? 'selected' : '' ?>><?= htmlspecialchars($member['name']) ?></option>
-                            <?php endwhile; ?>
-                        </select>
-                    </div>
+                                while ($member = $members_result->fetch_assoc()):
+                                ?>
+                                    <option value="<?= $member['user_id'] ?>" <?= $task['assigned_to'] == $member['user_id'] ? 'selected' : '' ?>><?= htmlspecialchars($member['name']) ?></option>
+                                <?php endwhile; ?>
+                            </select>
+                        </div>
+                    <?php else: ?>
+                        <!-- Assign To (Individual Project, hidden) -->
+                        <input type="hidden" name="assign_to" value="<?= htmlspecialchars($creator_id) ?>">
+                    <?php endif; ?>
 
                     <!-- Submit Button -->
                     <button type="submit" class="btn btn-primary w-100">Update Task</button>

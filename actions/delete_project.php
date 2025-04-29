@@ -1,6 +1,7 @@
 <?php
 // Include necessary files
 include('../config/db.php');
+include_once('../includes/email_sender.php');
 session_start();
 
 // Check if user is logged in
@@ -22,6 +23,33 @@ if (isset($_GET['project_id'])) {
     $result = $stmt->get_result();
 
     if ($result->num_rows > 0) {
+        $project = $result->fetch_assoc();
+
+        // Before deleting the project
+        if (!empty($project['group_id'])) {
+            $members_query = "SELECT u.user_id, u.email FROM Users u
+                              JOIN User_Groups ug ON u.user_id = ug.user_id
+                              WHERE ug.group_id = ?";
+            $members_stmt = $conn->prepare($members_query);
+            $members_stmt->bind_param("i", $project['group_id']);
+            $members_stmt->execute();
+            $members_result = $members_stmt->get_result();
+
+            while ($member = $members_result->fetch_assoc()) {
+                $notify_query = "INSERT INTO Notifications (user_id, message) VALUES (?, ?)";
+                $notify_stmt = $conn->prepare($notify_query);
+                $message = "Project '{$project['title']}' has been deleted.";
+                $notify_stmt->bind_param("is", $member['user_id'], $message);
+                $notify_stmt->execute();
+
+                if ($member['email']) {
+                    $subject = "Project Deleted";
+                    $body = $message;
+                    sendUserEmail($member['email'], $subject, $body);
+                }
+            }
+        }
+
         // If project belongs to the user, proceed to delete
         $delete_query = "DELETE FROM Projects WHERE project_id = ?";
         $delete_stmt = $conn->prepare($delete_query);

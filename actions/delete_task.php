@@ -1,6 +1,7 @@
 <?php
 session_start();
 include('../config/db.php');
+include_once('../includes/email_sender.php');
 
 // Check if the user is logged in
 if (!isset($_SESSION['user_id'])) {
@@ -17,6 +18,28 @@ if (!$task_id || !$project_id) {
     $_SESSION['error_message'] = "Invalid task or project ID.";
     header("Location: /TaskTrackr/actions/view_tasks.php");
     exit();
+}
+
+// Before deleting the task
+$assigned_user_query = "SELECT u.user_id, u.email FROM Users u WHERE u.user_id = ?";
+$assigned_user_stmt = $conn->prepare($assigned_user_query);
+$assigned_user_stmt->bind_param("i", $assigned_to);
+$assigned_user_stmt->execute();
+$assigned_user_result = $assigned_user_stmt->get_result();
+$assigned_user = $assigned_user_result->fetch_assoc();
+
+if ($assigned_user) {
+    $notify_query = "INSERT INTO Notifications (user_id, message) VALUES (?, ?)";
+    $notify_stmt = $conn->prepare($notify_query);
+    $message = "Task '{$title}' has been deleted.";
+    $notify_stmt->bind_param("is", $assigned_user['user_id'], $message);
+    $notify_stmt->execute();
+
+    if ($assigned_user['email']) {
+        $subject = "Task Deleted";
+        $body = $message;
+        sendUserEmail($assigned_user['email'], $subject, $body);
+    }
 }
 
 // Perform delete operation

@@ -12,7 +12,7 @@ $user_id = $_SESSION['user_id'];
 
 // Fetch notifications for the user
 function fetchNotifications($conn, $user_id) {
-    $query = "SELECT * FROM Notifications WHERE user_id = ? ORDER BY timestamp DESC";
+    $query = "SELECT * FROM Notifications WHERE user_id = ? ORDER BY date_created DESC";
     $stmt = $conn->prepare($query);
     if (!$stmt) {
         die("SQL Error: " . $conn->error);
@@ -79,45 +79,68 @@ $notifications = fetchNotifications($conn, $user_id);
     <div class="main-content flex-grow-1 p-4">
         <h2 class="mb-4 text-center">Notifications</h2>
 
-        <!-- Display Alerts -->
-        <?php include('../includes/alerts.php'); ?>
-
-        <div class="d-flex justify-content-between align-items-center mb-3">
-            <p class="text-muted mb-0">
+        <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap">
+            <p class="text-muted mb-2 mb-md-0">
+                <?php if ($notifications->num_rows > 0): ?>
                 You have <?= $notifications->num_rows ?> notification<?= $notifications->num_rows !== 1 ? 's' : '' ?>.
+                <?php endif; ?>
             </p>
+        
             <?php if ($notifications->num_rows > 0): ?>
                 <form method="POST" class="d-inline">
-                    <button type="submit" name="mark_all_read" class="btn btn-sm btn-primary">Mark All as Read</button>
+                    <button type="submit" name="mark_all_read" class="btn btn-sm btn-primary">
+                        <i class="bi bi-check2-all me-1"></i> Mark All as Read
+                    </button>
                 </form>
             <?php endif; ?>
         </div>
 
         <?php if ($notifications->num_rows === 0): ?>
-            <p class="text-muted text-center">You have no notifications.</p>
+            <div class="d-flex flex-column align-items-center justify-content-center p-5 text-center text-muted">
+                <i class="bi bi-bell-slash" style="font-size: 2.5rem;"></i>
+                <p class="mt-3 mb-0">You have no notifications.</p>
+            </div>
         <?php else: ?>
-            <ul class="list-group">
+            <div class="row g-3">
                 <?php while ($notification = $notifications->fetch_assoc()): ?>
-                    <li class="list-group-item d-flex justify-content-between align-items-start <?= $notification['is_read'] ? '' : 'list-group-item-warning' ?>">
-                        <div>
-                            <p class="mb-1"><?= htmlspecialchars($notification['message']) ?></p>
-                            <small class="text-muted"><?= date('F j, Y, g:i a', strtotime($notification['date_created'])) ?></small>
-                        </div>
-                        <div class="btn-group">
-                            <?php if (!$notification['is_read']): ?>
+                    <div class="col-12">
+                        <div class="card shadow-sm p-3 d-flex flex-row align-items-center justify-content-between
+                            <?= !$notification['is_read'] ? 'border-primary bg-light' : 'border-0' ?>"
+                            style="border-left: 5px solid <?= !$notification['is_read'] ? '#0d6efd' : '#dee2e6' ?>;">
+                            <div class="flex-grow-1">
+                                <div class="d-flex align-items-center mb-1">
+                                    <?php if (!$notification['is_read']): ?>
+                                        <span class="badge bg-primary me-2">Unread</span>
+                                    <?php endif; ?>
+                                    <span class="<?= !$notification['is_read'] ? 'fw-bold' : 'text-muted' ?>">
+                                        <?= htmlspecialchars($notification['message']) ?>
+                                    </span>
+                                </div>
+                                <small class="text-muted">
+                                    <i class="bi bi-clock me-1"></i>
+                                    <?= date('F j, Y, g:i a', strtotime($notification['date_created'])) ?>
+                                </small>
+                            </div>
+                            <div class="ms-3 d-flex flex-row gap-2">
+                                <?php if (!$notification['is_read']): ?>
+                                    <form method="POST" class="d-inline">
+                                        <input type="hidden" name="notification_id" value="<?= $notification['notification_id'] ?>">
+                                        <button type="submit" name="mark_read" class="btn btn-outline-success btn-sm" title="Mark as Read">
+                                            <i class="bi bi-check2"></i>
+                                        </button>
+                                    </form>
+                                <?php endif; ?>
                                 <form method="POST" class="d-inline">
                                     <input type="hidden" name="notification_id" value="<?= $notification['notification_id'] ?>">
-                                    <button type="submit" name="mark_read" class="btn btn-sm btn-success">Mark as Read</button>
+                                    <button type="submit" name="delete_notification" class="btn btn-outline-danger btn-sm" title="Delete">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
                                 </form>
-                            <?php endif; ?>
-                            <form method="POST" class="d-inline">
-                                <input type="hidden" name="notification_id" value="<?= $notification['notification_id'] ?>">
-                                <button type="submit" name="delete_notification" class="btn btn-sm btn-danger">Delete</button>
-                            </form>
+                            </div>
                         </div>
-                    </li>
+                    </div>
                 <?php endwhile; ?>
-            </ul>
+            </div>
         <?php endif; ?>
     </div>
 </div>

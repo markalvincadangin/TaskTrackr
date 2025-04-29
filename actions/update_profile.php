@@ -1,6 +1,7 @@
 <?php
 session_start();
 include('../config/db.php');
+include_once('../includes/email_sender.php');
 
 // Ensure user is logged in
 if (!isset($_SESSION['user_id'])) {
@@ -84,6 +85,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if ($stmt->execute()) {
         $_SESSION['success_message'] = "Profile updated successfully.";
+        $_SESSION['name'] = $name; // to update the name in the session
+
+        // Notify user (in-app)
+        $notify_query = "INSERT INTO Notifications (user_id, message) VALUES (?, ?)";
+        $notify_stmt = $conn->prepare($notify_query);
+        $message = "Your profile information was updated.";
+        $notify_stmt->bind_param("is", $user_id, $message);
+        $notify_stmt->execute();
+
+        // Notify user (email)
+        if ($email) {
+            $subject = "Profile Updated";
+            $body = $message;
+            sendUserEmail($email, $subject, $body);
+        }
     } else {
         $_SESSION['error_message'] = "Failed to update profile. Please try again.";
     }

@@ -7,15 +7,19 @@ TaskTrackr is a lightweight task management application designed to help users o
 - Add, edit, and delete tasks.
 - Mark tasks as completed.
 - Categorize tasks by priority or tags.
+- Group and project management.
+- In-app and email notifications for important events.
+- Automated reminders for upcoming and overdue tasks.
+- User profile and settings (including dark mode and custom reminder days).
 - Responsive and user-friendly interface.
 
 ## Installation
 
-1. Clone the repository:
+1. **Clone the repository:**
     ```bash
     git clone https://github.com/markalvincadangin/TaskTrackr.git
     ```
-2. Navigate to the project directory:
+2. **Navigate to the project directory:**
     ```bash
     cd path/to/TaskTrackr
     ```
@@ -43,21 +47,69 @@ TaskTrackr is a lightweight task management application designed to help users o
       - Click `Go` to import the schema.
 
 ### 3. Configure the Application
-   - Open the `db.php` file in the project directory.
+   - Open the `config/db.php` file in the project directory.
    - Update the database connection settings if necessary:
      ```php
      // filepath: c:\xampp\htdocs\TaskTrackr\config\db.php
-     $db_host = 'localhost';
-     $db_user = 'root';
-     $db_pass = ''; // Add your MySQL password if applicable
-     $db_name = 'tasktrackr';
+     $host = 'localhost';
+     $user = 'root';
+     $password = ''; // Add your MySQL password if applicable
+     $database = 'tasktrackr';
      ```
 
-### 4. Start the Application
+### 4. Configure Email Sending
+   - PHPMailer is already included in the project folder under `vendor/phpmailer/`.
+   - **No need to download PHPMailer separately.**
+   - Edit `includes/email_sender.php` and set your SMTP server, username, and password.
+   - For Gmail, use an App Password and set:
+     ```php
+     $mail->Host = 'smtp.gmail.com';
+     $mail->Username = 'your.email@gmail.com';
+     $mail->Password = 'your_app_password';
+     $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+     $mail->Port = 587;
+     ```
+   - For Gmail, use an **App Password**:
+     - Go to [https://myaccount.google.com/apppasswords](https://myaccount.google.com/apppasswords)
+     - Create an app password and paste it in `includes/email_sender.php` as your SMTP password.
+   - Make sure your SMTP credentials are correct and your email provider allows SMTP access.
+
+### 5. Start the Application
    - Open your browser and navigate to:
      ```
      http://localhost/TaskTrackr
      ```
+
+## Automated Task Reminders
+
+TaskTrackr includes a script to automatically send reminders for upcoming and overdue tasks.
+
+### How to Test Manually
+
+1. Open Command Prompt and navigate to your project directory:
+    ```sh
+    cd C:\xampp\htdocs\TaskTrackr
+    ```
+2. Run the script:
+    ```sh
+    php actions\send_task_reminders.php
+    ```
+3. Check for new notifications in the app and reminder emails in your inbox.
+
+### How to Automate with Windows Task Scheduler
+
+1. Open **Task Scheduler** from the Start menu.
+2. Click **Create Basic Task...**
+3. Name it (e.g., `TaskTrackr Send Task Reminders`).
+4. Set the trigger to **Daily** at your preferred time.
+5. Set the action to **Start a program**:
+    - **Program/script:**  
+      `C:\xampp\php\php.exe`
+    - **Add arguments:**  
+      `C:\xampp\htdocs\TaskTrackr\actions\send_task_reminders.php`
+    - **Start in:**  
+      `C:\xampp\htdocs\TaskTrackr\actions`
+6. Finish and test by right-clicking the task and choosing **Run**.
 
 ## Usage
 
@@ -65,7 +117,9 @@ TaskTrackr is a lightweight task management application designed to help users o
     ```
     http://localhost/TaskTrackr
     ```
-2. Start managing your tasks!
+2. Register a new account or log in.
+3. Start managing your tasks, projects, and groups!
+4. Set your reminder preferences and dark mode in the Settings page.
 
 ## Contributing
 
@@ -91,3 +145,11 @@ Contributions are welcome! Please follow these steps:
 - Built with PHP and XAMPP.
 - Inspired by the need for simple task management tools.
 - Thanks to the open-source community for their support.
+- Special thanks to **Group 5** for their contributions:
+  - Brillantes, Luisa Rose
+  - Cadangin, Mark Alvin
+  - Calisa, Eliza May
+  - Dela Cruz, Christian Paul
+  - Manago, Tristan
+  - Serra, Alyanna Bianca
+  - Tacleon, Ellen Mae

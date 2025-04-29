@@ -101,6 +101,25 @@ $user = $stmt->get_result()->fetch_assoc();
                 </div>
             </div>
         </div>
+
+        <!-- Delete Account Section -->
+        <div class="row mt-4">
+            <div class="col-md-8 offset-md-4">
+                <div class="card shadow-sm mb-4 border-danger">
+                    <div class="card-header bg-light">
+                        <h5 class="mb-0 text-danger"><i class="bi bi-trash me-2"></i>Delete Account</h5>
+                    </div>
+                    <div class="card-body">
+                        <p class="card-text mb-3">Warning: This action is <strong>irreversible</strong>. All your data will be permanently deleted.</p>
+                        <form action="../actions/delete_account.php" method="POST" onsubmit="return confirm('Are you sure you want to delete your account? This action cannot be undone.');">
+                            <button type="submit" class="btn btn-danger w-100">
+                                <i class="bi bi-trash"></i> Delete My Account
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
     </main>
 </div>
 
