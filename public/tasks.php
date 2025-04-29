@@ -99,14 +99,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $email_result = $email_stmt->get_result();
         $user_email = $email_result->fetch_assoc()['email'] ?? null;
 
-        $settings_query = "SELECT email_notifications FROM User_Settings WHERE user_id = ?";
-        $settings_stmt = $conn->prepare($settings_query);
-        $settings_stmt->bind_param("i", $user_id);
-        $settings_stmt->execute();
-        $settings_result = $settings_stmt->get_result();
-        $email_enabled = $settings_result->fetch_assoc()['email_notifications'] ?? 0;
-
-        if ($user_email && $email_enabled) {
+        if ($user_email) {
             $subject = "Task Status Updated: {$task_info['title']}";
             $body = "You updated the status of your task '{$task_info['title']}' to '{$new_status}'.";
             sendUserEmail($user_email, $subject, $body);
@@ -121,14 +114,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $creator_email_result = $creator_email_stmt->get_result();
             $creator_email = $creator_email_result->fetch_assoc()['email'] ?? null;
 
-            $creator_settings_query = "SELECT email_notifications FROM User_Settings WHERE user_id = ?";
-            $creator_settings_stmt = $conn->prepare($creator_settings_query);
-            $creator_settings_stmt->bind_param("i", $creator['created_by']);
-            $creator_settings_stmt->execute();
-            $creator_settings_result = $creator_settings_stmt->get_result();
-            $creator_email_enabled = $creator_settings_result->fetch_assoc()['email_notifications'] ?? 0;
-
-            if ($creator_email && $creator_email_enabled) {
+            if ($creator_email) {
                 $subject = "Task Status Updated in Your Project";
                 $body = "A task in your project ('{$task_info['title']}') was updated to '{$new_status}'.";
                 sendUserEmail($creator_email, $subject, $body);
