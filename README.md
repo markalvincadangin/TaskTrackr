@@ -37,7 +37,7 @@ TaskTrackr is a lightweight, modern task management application designed to help
     ```
 2. **Install XAMPP** and start Apache/MySQL ([Download XAMPP](https://www.apachefriends.org/)).
 3. **Import the database:**
-    - Open [http://localhost/phpmyadmin](http://localhost/phpmyadmin)
+    - Open [localhost/phpmyadmin](localhost/phpmyadmin)
     - Create a database named `tasktrackr`
     - Import `database/tasktrackr.sql`
 4. **Configure the app:**
@@ -45,7 +45,7 @@ TaskTrackr is a lightweight, modern task management application designed to help
 5. **Configure email sending:**
     - Edit `includes/email_sender.php` with your SMTP settings (see below).
 6. **Open the app:**
-    - Go to [http://localhost/TaskTrackr](http://localhost/TaskTrackr)
+    - Go to [localhost/TaskTrackr](localhost/TaskTrackr)
 
 ---
 
@@ -56,7 +56,7 @@ TaskTrackr is a lightweight, modern task management application designed to help
 - Start the Apache and MySQL services from the XAMPP Control Panel.
 
 ### 2. Configure the Database
-- Open `phpMyAdmin` at [http://localhost/phpmyadmin](http://localhost/phpmyadmin)
+- Open `phpMyAdmin` at [localhost/phpmyadmin](localhost/phpmyadmin)
 - Create a new database named `tasktrackr`
 - Import the schema from `database/tasktrackr.sql`
 
@@ -82,7 +82,7 @@ TaskTrackr is a lightweight, modern task management application designed to help
 - For Gmail, use an [App Password](https://myaccount.google.com/apppasswords).
 
 ### 5. Start the Application
-- Open your browser and go to [http://localhost/TaskTrackr](http://localhost/TaskTrackr)
+- Open your browser and go to [localhost/TaskTrackr](localhost/TaskTrackr)
 
 ---
 
