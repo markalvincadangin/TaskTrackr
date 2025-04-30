@@ -13,8 +13,8 @@ function sendUserEmail($to, $subject, $body) {
         $mail->isSMTP();
         $mail->Host       = 'smtp.gmail.com'; // Set your SMTP server
         $mail->SMTPAuth   = true;
-        $mail->Username   = 'markalvin.cadangin@wvsu.edu.ph';   // SMTP username
-        $mail->Password   = 'ykwovudaihjgnxai';     // SMTP password
+        $mail->Username   = 'youremail@gmail.com';   // SMTP username
+        $mail->Password   = 'your_app_password';     // SMTP password
         $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
         $mail->Port       = 587;
 
