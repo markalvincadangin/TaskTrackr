@@ -150,7 +150,7 @@ TaskTrackr/
 1. Open your browser and navigate to [http://localhost/TaskTrackr](http://localhost/TaskTrackr)
 2. Register a new account or log in.
 3. Start managing your tasks, projects, and groups!
-4. Set your reminder preferences and dark mode in the Settings page.
+4. Set your reminder preferences in the Settings page.
 
 ---
 
