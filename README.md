@@ -130,6 +130,8 @@ TaskTrackr/
 ├── public/         # Main entry points (login, register, dashboard, etc.)
 ├── actions/        # Form handlers and backend logic
 ├── vendor/         # PHPMailer 
+├── uploads/        # Location of profile pictures
+├── documentation/  # Documentation
 └── README.md
 ```
 
