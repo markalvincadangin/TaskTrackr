@@ -119,128 +119,123 @@ while ($project = $projects_result->fetch_assoc()) {
 <?php include('../includes/header.php'); ?>
 <div class="d-flex">
     <?php include('../includes/sidebar.php'); ?>
-    <div class="main-content flex-grow-1 p-4">
+    <main class="main-content flex-grow-1 p-4">
+        <div class="container-fluid px-0">
 
-        <!-- Alerts -->
-        <?php include('../includes/alerts.php'); ?>
+            <!-- Alerts -->
+            <?php include('../includes/alerts.php'); ?>
 
-        <!-- 👋 Welcome Section -->
-        <div class="card shadow-sm p-3 mb-4">
-            <div class="welcome-section">
-                <h2 class="mb-2">Hello, <?php echo htmlspecialchars($_SESSION['name']); ?>!</h2>
-                <p class="text-muted mb-0">Welcome back! Here’s a quick look at your progress.</p>
+            <!-- Welcome Section -->
+            <div class="card shadow-sm rounded p-4 mb-4">
+                <div class="d-flex flex-column flex-md-row justify-content-between align-items-center">
+                    <div>
+                        <h2 class="fw-bold mb-2"><i class="bi bi-house-door me-2"></i>Hello, <?= htmlspecialchars($_SESSION['name']); ?>!</h2>
+                        <p class="text-muted mb-0">Welcome back! Here’s a quick look at your progress.</p>
+                    </div>
+                </div>
             </div>
-        </div>
 
-        <!-- 📊 Task Summary Cards -->
-        <div class="row g-3 mb-4">
-            <?php
-            $statuses = [
-                'Pending' => ['color' => 'bg-secondary', 'icon' => 'bi-hourglass-split'],
-                'In Progress' => ['color' => 'bg-primary', 'icon' => 'bi-arrow-repeat'],
-                'Done' => ['color' => 'bg-success', 'icon' => 'bi-check-circle'],
-                'Overdue' => ['color' => 'bg-danger', 'icon' => 'bi-exclamation-triangle']
-            ];
-            foreach ($statuses as $status => $details): ?>
-                <div class="col-md-3">
-                    <div class="card text-white <?= $details['color'] ?> shadow-sm p-3 h-100 flex-fill">
-                        <div class="card-body">
-                            <h5 class="card-title"><i class="bi <?= $details['icon'] ?> me-2"></i> <?= $status ?></h5>
-                            <h3 class="card-text"><?= $task_summary[$status] ?></h3>
+            <!-- Task Summary Cards -->
+            <div class="row g-3 mb-4">
+                <?php
+                $statuses = [
+                    'Pending' => ['color' => 'bg-secondary', 'icon' => 'bi-hourglass-split'],
+                    'In Progress' => ['color' => 'bg-primary', 'icon' => 'bi-arrow-repeat'],
+                    'Done' => ['color' => 'bg-success', 'icon' => 'bi-check-circle'],
+                    'Overdue' => ['color' => 'bg-danger', 'icon' => 'bi-exclamation-triangle']
+                ];
+                foreach ($statuses as $status => $details): ?>
+                    <div class="col-md-3">
+                        <div class="card text-white <?= $details['color'] ?> shadow-sm rounded p-3 h-100 flex-fill">
+                            <div class="card-body">
+                                <h5 class="card-title mb-2"><i class="bi <?= $details['icon'] ?> me-2"></i><?= $status ?></h5>
+                                <h3 class="card-text"><?= $task_summary[$status] ?></h3>
+                            </div>
                         </div>
                     </div>
-                </div>
-            <?php endforeach; ?>
-        </div>
+                <?php endforeach; ?>
+            </div>
 
-        <!-- Insights Section: Chart & Progress (Left), Calendar (Right) -->
-        <div class="row g-4 mb-4">
-            <!-- Left Column -->
-            <div class="col-md-6 d-flex flex-column">
-                <div class="card shadow-sm p-3 h-100 flex-fill mb-4">
-                    <div class="card-body d-flex flex-column align-items-center position-relative">
-                        <h5 class="card-title mb-3 w-100">Tasks Distribution</h5>
-                        <?php
-                        $no_tasks = array_sum($task_summary) === 0;
-                        ?>
-                        <?php if ($no_tasks): ?>
-                            <div class="d-flex flex-column align-items-center justify-content-center w-100" style="min-height:200px;">
-                                <i class="bi bi-clipboard-x text-muted" style="font-size:2.5rem;"></i>
-                                <div class="mt-2 text-muted">No tasks assigned yet.</div>
-                            </div>
-                        <?php else: ?>
-                            <canvas id="taskChart" style="max-height:250px;width:100%;"></canvas>
-                        <?php endif; ?>
-                    </div>
-                </div>
-                <div class="card shadow-sm p-3 h-100 flex-fill">
-                    <div class="card-body d-flex flex-column justify-content-center">
-                        <h5 class="card-title mb-3">Tasks Completion</h5>
-                        <?php if ($total_tasks > 0): ?>
-                            <div class="mb-2">
-                                <strong>You have completed <?= $completion_percent ?>% of your assigned tasks.</strong>
-                            </div>
-                            <div class="progress" style="height: 24px;">
-                                <div class="progress-bar bg-success" role="progressbar" style="width: <?= $completion_percent ?>%;" aria-valuenow="<?= $completion_percent ?>" aria-valuemin="0" aria-valuemax="100">
-                                    <?= $completion_percent ?>%
+            <!-- Insights Section: Chart & Progress (Left), Calendar (Right) -->
+            <div class="row g-4 mb-4">
+                <!-- Left Column -->
+                <div class="col-md-6 d-flex flex-column">
+                    <div class="card shadow-sm rounded p-3 h-100 flex-fill mb-4">
+                        <div class="card-body d-flex flex-column align-items-center position-relative">
+                            <h5 class="card-title mb-3 w-100 fw-bold"><i class="bi bi-pie-chart me-2"></i>Tasks Distribution</h5>
+                            <?php $no_tasks = array_sum($task_summary) === 0; ?>
+                            <?php if ($no_tasks): ?>
+                                <div class="d-flex flex-column align-items-center justify-content-center w-100" style="min-height:200px;">
+                                    <i class="bi bi-clipboard-x text-muted" style="font-size:2.5rem;"></i>
+                                    <div class="mt-2 text-muted">No tasks assigned yet.</div>
                                 </div>
-                            </div>
-                        <?php else: ?>
-                            <div class="text-muted">No tasks assigned yet.</div>
-                        <?php endif; ?>
-                    </div>
-                </div>
-            </div>
-            <!-- Right Column -->
-            <div class="col-md-6 d-flex flex-column">
-                <div class="card shadow-sm p-3 h-100 flex-fill">
-                    <div class="card-body d-flex flex-column">
-                        <h5 class="card-title mb-3">Upcoming Tasks</h5>
-                        <div id="calendar" style="min-height: 300px; max-height: 500px; overflow-y: auto;"></div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Project Progress Section -->
-        <div class="row mb-4">
-            <div class="col-12">
-                <div class="card shadow-sm p-3 h-100 flex-fill">
-                    <div class="card-body">
-                        <h5 class="card-title mb-4">Project Progress</h5>
-                        <div class="row g-3">
-                            <?php if (count($project_cards) > 0): ?>
-                                <?php foreach ($project_cards as $proj): ?>
-                                    <div class="col-md-4 mb-3">
-                                        <div class="card shadow-sm p-3 h-100 flex-fill">
-                                            <div class="card-body">
-                                                <h6 class="card-title mb-2"><?= htmlspecialchars($proj['title']) ?></h6>
-                                                <?php if ($proj['total'] > 0): ?>
-                                                    <div class="mb-2">
-                                                        <small>Project is <?= $proj['percent'] ?>% complete.</small>
-                                                    </div>
-                                                    <div class="progress" style="height: 20px;">
-                                                        <div class="progress-bar bg-info" role="progressbar" style="width: <?= $proj['percent'] ?>%;" aria-valuenow="<?= $proj['percent'] ?>" aria-valuemin="0" aria-valuemax="100">
-                                                            <?= $proj['percent'] ?>%
-                                                        </div>
-                                                    </div>
-                                                <?php else: ?>
-                                                    <div class="text-muted">No tasks in this project yet.</div>
-                                                <?php endif; ?>
-                                            </div>
-                                        </div>
-                                    </div>
-                                <?php endforeach; ?>
                             <?php else: ?>
-                                <div class="col-12 text-muted">No projects yet.</div>
+                                <canvas id="taskChart" style="max-height:250px;width:100%;"></canvas>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+                    <div class="card shadow-sm rounded p-3 h-100 flex-fill">
+                        <div class="card-body d-flex flex-column justify-content-center">
+                            <h5 class="card-title mb-3 fw-bold"><i class="bi bi-bar-chart-line me-2"></i>Tasks Completion</h5>
+                            <?php if ($total_tasks > 0): ?>
+                                <div class="mb-2">
+                                    <strong>You have completed <?= $completion_percent ?>% of your assigned tasks.</strong>
+                                </div>
+                                <div class="progress" style="height: 24px;">
+                                    <div class="progress-bar bg-success" role="progressbar" style="width: <?= $completion_percent ?>%;" aria-valuenow="<?= $completion_percent ?>" aria-valuemin="0" aria-valuemax="100">
+                                        <?= $completion_percent ?>%
+                                    </div>
+                                </div>
+                            <?php else: ?>
+                                <div class="text-muted">No tasks assigned yet.</div>
                             <?php endif; ?>
                         </div>
                     </div>
                 </div>
+                <!-- Right Column -->
+                <div class="col-md-6 d-flex flex-column">
+                    <div class="card shadow-sm rounded p-3 h-100 flex-fill">
+                        <div class="card-body d-flex flex-column">
+                            <h5 class="card-title mb-3 fw-bold"><i class="bi bi-calendar-event me-2"></i>Upcoming Tasks</h5>
+                            <div id="calendar" style="min-height: 300px; max-height: 500px; overflow-y: auto;"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Project Progress Section -->
+            <div class="card shadow-sm rounded p-4 mb-4">
+                <h5 class="card-title mb-4 fw-bold"><i class="bi bi-graph-up-arrow me-2"></i>Project Progress</h5>
+                <div class="row g-3">
+                    <?php if (count($project_cards) > 0): ?>
+                        <?php foreach ($project_cards as $proj): ?>
+                            <div class="col-md-4 mb-3">
+                                <div class="card shadow-sm rounded p-3 h-100 flex-fill">
+                                    <div class="card-body">
+                                        <h6 class="card-title mb-2"><?= htmlspecialchars($proj['title']) ?></h6>
+                                        <?php if ($proj['total'] > 0): ?>
+                                            <div class="mb-2">
+                                                <small>Project is <?= $proj['percent'] ?>% complete.</small>
+                                            </div>
+                                            <div class="progress" style="height: 20px;">
+                                                <div class="progress-bar bg-info" role="progressbar" style="width: <?= $proj['percent'] ?>%;" aria-valuenow="<?= $proj['percent'] ?>" aria-valuemin="0" aria-valuemax="100">
+                                                    <?= $proj['percent'] ?>%
+                                                </div>
+                                            </div>
+                                        <?php else: ?>
+                                            <div class="text-muted">No tasks in this project yet.</div>
+                                        <?php endif; ?>
+                                    </div>
+                                </div>
+                            </div>
+                        <?php endforeach; ?>
+                    <?php else: ?>
+                        <div class="col-12 text-muted">No projects yet.</div>
+                    <?php endif; ?>
+                </div>
             </div>
         </div>
-
-    </div>
+    </main>
 </div>
 
 <?php if (!$no_tasks): ?>

@@ -1,5 +1,6 @@
 <?php
 include('../config/db.php');
+session_start();
 include('../includes/header.php');
 
 // Ensure user is logged in
@@ -26,18 +27,19 @@ $group_result = $stmt->get_result();
 
 <div class="d-flex">
     <?php include('../includes/sidebar.php'); ?>
-    <div class="main-content flex-grow-1 p-4">
+    <main class="main-content flex-grow-1 p-4">
         <div class="container-fluid px-0">
+
+            <!-- Alerts -->
+            <?php include('../includes/alerts.php'); ?>
+
+            <!-- Section Header -->
             <div class="d-flex flex-wrap justify-content-between align-items-center mb-4">
-                <h2 class="mb-0">Your Groups</h2>
-                <!-- Create Group Modal Trigger -->
+                <h2 class="fw-bold mb-0"><i class="bi bi-people me-2"></i>Your Groups</h2>
                 <button class="btn btn-primary d-flex align-items-center" data-bs-toggle="modal" data-bs-target="#createGroupModal">
                     <i class="bi bi-plus-circle me-2"></i> Create Group
                 </button>
             </div>
-
-            <!-- Display Alerts -->
-            <?php include('../includes/alerts.php'); ?>
 
             <!-- Group List Section -->
             <div class="card shadow-sm p-4 mb-4">
@@ -148,9 +150,8 @@ $group_result = $stmt->get_result();
                 </div>
             </div>
             <!-- End Create Group Modal -->
-
         </div>
-    </div>
+    </main>
 </div>
 
 <script>

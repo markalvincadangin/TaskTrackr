@@ -17,25 +17,66 @@ body {
 
 /* Sidebar Styling */
 .sidebar {
+    position: fixed;
+    top: 60px;
+    left: 0;
+    height: 100vp;
+    min-height: calc(100vh - 60px);
     width: 240px;
+    min-width: 240px;
+    z-index: 1030;
+    transition: width 0.35s cubic-bezier(.4,2,.6,1), box-shadow 0.3s cubic-bezier(.4,2,.6,1), background 0.2s;
     background-color: #343a40;
     color: white;
-    height: 100vh; /* Full height of the viewport */
-    position: fixed;
-    top: 0;
-    left: 0;
-    overflow-y: auto;
-    padding: 20px 0 20px 0;
-    z-index: 1040; /* Ensure it stays above other content */
-    transition: left 0.3s;
+    padding: 0 0 20px 0; /*20px 0 20px 0;*/
+    overflow: hidden;
+    box-shadow: 2px 0 12px rgba(0,0,0,0.08);
+    border-right: 1px solid #23272b;
+    will-change: width;
+}
+.sidebar.collapsed {
+    width: 60px;
+    min-width: 60px;
+    box-shadow: 1px 0 6px rgba(0,0,0,0.04);
+}
+.sidebar .sidebar-text {
+    transition: opacity 0.25s cubic-bezier(.4,2,.6,1), width 0.25s cubic-bezier(.4,2,.6,1);
+    white-space: nowrap;
+}
+.sidebar.collapsed .sidebar-text {
+    opacity: 0;
+    width: 0;
+    overflow: hidden;
+    display: inline-block;
 }
 
 .sidebar .nav-link {
-    color: #fff;
-    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 0.75rem;
     padding: 10px 20px;
+    border-radius: 6px;
     font-size: 16px;
-    transition: background 0.2s, color 0.2s;
+    transition: background 0.2s, color 0.2s, padding 0.35s cubic-bezier(.4,2,.6,1);
+}
+
+.sidebar.collapsed .nav-link {
+    justify-content: center;
+    padding: 10px 0;
+    transition: background 0.2s, color 0.2s, padding 0.35s cubic-bezier(.4,2,.6,1);
+}
+
+.sidebar .nav-link i {
+    font-size: 1.5rem;
+    min-width: 32px;
+    text-align: center;
+    display: inline-block;
+    transition: font-size 0.3s;
+}
+
+.sidebar.collapsed .nav-link i {
+    margin-right: 0;
 }
 
 .sidebar .nav-link.bg-primary {
@@ -44,7 +85,7 @@ body {
 }
 
 .sidebar .nav-link:hover, .sidebar .nav-link:focus {
-    background-color: #495057;
+    background-color: #23272b;
     color: #fff;
 }
 
@@ -61,19 +102,48 @@ body {
     margin-top: auto;
 }
 
-/* Header Styling */
-header {
+/* Sidebar Toggle Button - Fixed Top-Right Inside Sidebar */
+.sidebar-toggle-btn {
     position: fixed;
-    top: 0;
-    left: 240px; /* Align next to the sidebar */
-    width: calc(100% - 240px); /* Take the remaining width */
-    height: 60px;
-    background-color: #f8f9fa;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.08);
+    top: 65px; /* just below your header (header is 60px) */
+    left: 240px; /* sidebar width */
+    z-index: 1100;
+    width: 23px;
+    height: 23px;
+    border-radius: 50%;
+    background: #343a40;
+    color: #fff;
+    border: none;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.12);
     display: flex;
     align-items: center;
-    padding: 0 20px;
-    z-index: 1030; /* Ensure it stays above the main content */
+    justify-content: center;
+    transition: left 0.35s cubic-bezier(.4,2,.6,1), background 0.2s;
+    cursor: pointer;
+    font-size: 1.2rem;
+}
+.sidebar.collapsed ~ .sidebar-toggle-btn,
+.sidebar.collapsed .sidebar-toggle-btn {
+    left: 60px;
+}
+@media (max-width: 991.98px) {
+    .sidebar-toggle-btn {
+        display: none;
+    }
+}
+
+/* Header Styling */
+header {
+    width: 100%;
+    height: 60px;
+    position: fixed;
+    top: 0;
+    left: 0;
+    background-color: #f8f9fa;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.08);
+    z-index: 1040;
+    display: flex;
+    align-items: center;
 }
 
 header .navbar-brand {
@@ -98,11 +168,16 @@ header .dropdown-menu {
 
 /* Main Content Styling */
 .main-content {
-    margin-left: 240px; /* Matches the sidebar width */
-    margin-top: 60px; /* Matches the header height */
-    padding: 20px;
-    flex: 1; /* Allow the main content to grow and fill available space */
-    overflow-y: auto; /* Enable scrolling if content overflows */
+    margin-left: 240px;
+    transition: margin-left 0.3s;
+}
+body.sidebar-collapsed .main-content {
+    margin-left: 60px;
+}
+
+.sidebar.collapsed ~ .main-content,
+body .sidebar.collapsed + .main-content {
+    margin-left: 60px;
 }
 
 /* Footer Styling */
@@ -111,15 +186,11 @@ footer {
     border-top: 1px solid #ddd;
     padding: 10px 0;
     text-align: center;
-    margin-left: 240px; /* Align with the main content */
-    width: calc(100% - 240px); /* Take the remaining width */
-    flex-shrink: 0; /* Ensure the footer stays at the bottom */
-}
-
-footer p {
-    margin: 0;
-    font-size: 14px;
-    color: #666;
+    width: 100%;
+    margin-left: 0;
+    flex-shrink: 0;
+    position: relative;
+    z-index: 1;
 }
 
 /* Card Styling */
@@ -214,25 +285,46 @@ footer p {
 /* Responsive Design */
 @media (max-width: 991.98px) {
     .sidebar {
-        left: -240px;
+        position: fixed;
+        left: 0;
+        top: 60px;
         width: 240px;
-        transition: left 0.3s;
+        min-width: 240px;
+        height: calc(100vh - 60px);
+        transform: translateX(-100%);
+        transition: transform 0.3s;
+        z-index: 1050;
     }
     .sidebar.active {
-        left: 0;
+        transform: translateX(0);
     }
-    header {
+    .sidebar.collapsed {
+        width: 60px;
+        min-width: 60px;
+    }
+    #sidebarCollapse {
+        display: none;
+    }
+    .sidebar-backdrop {
+        display: none;
+        position: fixed;
+        top: 60px;
         left: 0;
-        width: 100%;
+        width: 100vw;
+        height: calc(100vh - 60px);
+        background: rgba(0,0,0,0.3);
+        z-index: 1049;
+    }
+    .sidebar-backdrop.show {
+        display: block;
     }
     .main-content {
-        margin-left: 0;
-        margin-top: 60px;
-    }
-    footer {
-        margin-left: 0;
-        width: 100%;
+        margin-left: 0 !important;
     }
 }
 
-/* Add a sidebar toggle button for mobile in your header if needed */
+/* Add a spacer after the fixed header */
+body > header + .d-flex,
+body > header + div.d-flex {
+    margin-top: 60px;
+}

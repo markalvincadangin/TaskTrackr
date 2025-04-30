@@ -1,6 +1,7 @@
 <?php
 // Include necessary files
 include('../config/db.php');
+session_start();
 include('../includes/header.php');
 
 // Check if the user is logged in
@@ -46,22 +47,20 @@ $group_result = $group_stmt->get_result();
 ?>
 
 <div class="d-flex">
-    <!-- Sticky Sidebar -->
-    <div class="sidebar sticky-top">
-        <?php include('../includes/sidebar.php'); ?>
-    </div>
-    <div class="main-content flex-grow-1 p-4">
+    <?php include('../includes/sidebar.php'); ?>
+    <main class="main-content flex-grow-1 p-4">
         <div class="container-fluid px-0">
+
+            <!-- Alerts -->
+            <?php include('../includes/alerts.php'); ?>
+
+            <!-- Section Header -->
             <div class="d-flex flex-wrap justify-content-between align-items-center mb-4">
-                <h2 class="mb-0">Your Projects</h2>
-                <!-- Create Project Modal Trigger -->
+                <h2 class="fw-bold mb-0"><i class="bi bi-folder me-2"></i>Your Projects</h2>
                 <button class="btn btn-primary d-flex align-items-center" data-bs-toggle="modal" data-bs-target="#addProjectModal">
                     <i class="bi bi-plus-circle me-2"></i> Create Project
                 </button>
             </div>
-
-            <!-- Display Alerts -->
-            <?php include('../includes/alerts.php'); ?>
 
             <!-- Projects Table Card -->
             <div class="card shadow-sm p-4 mb-4">
@@ -171,7 +170,6 @@ $group_result = $group_stmt->get_result();
                                     <div class="col-md-6">
                                         <label for="group" class="form-label">Group</label>
                                         <select id="group" name="group_id" class="form-select">
-                                            <option value="">Select Group</option>
                                             <option value="">Individual</option>
                                             <?php
                                             $group_result->data_seek(0);
@@ -194,7 +192,7 @@ $group_result = $group_stmt->get_result();
             </div>
             <!-- End Create Project Modal -->
         </div>
-    </div>
+    </main>
 </div>
 
 <?php include('../includes/footer.php'); ?>

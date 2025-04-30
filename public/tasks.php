@@ -133,66 +133,74 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 <div class="d-flex">
     <?php include('../includes/sidebar.php'); ?>
-    <div class="main-content flex-grow-1 p-4" style="margin-left: 240px;">
-        
-        <!-- Alerts -->
-        <?php include('../includes/alerts.php'); ?>
+    <main class="main-content flex-grow-1 p-4">
+        <div class="container-fluid px-0">
 
-        <h2 class="mb-4">Your Assigned Tasks</h2>
+            <!-- Alerts -->
+            <?php include('../includes/alerts.php'); ?>
 
-        <?php if (empty($tasks_by_project)): ?>
-            <p>No tasks assigned to you yet.</p>
-        <?php else: ?>
-            <?php foreach ($tasks_by_project as $project): ?>
-                <div class="card mb-4">
-                    <div class="card-header bg-primary text-white">
-                        <strong>Project:</strong> <?= htmlspecialchars($project['project_title']) ?>
-                    </div>
-                    <ul class="list-group list-group-flush">
-                        <?php foreach ($project['tasks'] as $task): ?>
-                            <li class="list-group-item">
-                                <h5><?= htmlspecialchars($task['task_title']) ?></h5>
-                                <p><?= htmlspecialchars($task['description']) ?></p>
-                                <small>
-                                    <strong>Due:</strong> <?= $task['due_date'] ?> |
-                                    <strong>Priority:</strong> <?= $task['priority'] ?> |
-                                    <strong>Status:</strong> <?= $task['status'] ?>
-                                </small>
+            <!-- Section Header -->
+            <div class="d-flex flex-wrap justify-content-between align-items-center mb-4">
+                <h2 class="fw-bold mb-0"><i class="bi bi-list-task me-2"></i>Your Assigned Tasks</h2>
+            </div>
 
-                                <!-- Task Actions -->
-                                <div class="mt-2">
-                                    <?php if ($task['status'] === 'Pending'): ?>
-                                        <!-- Start Task Button -->
-                                        <form action="tasks.php" method="POST" class="d-inline">
-                                            <input type="hidden" name="task_id" value="<?= $task['task_id'] ?>">
-                                            <input type="hidden" name="status" value="In Progress">
-                                            <button type="submit" class="btn btn-primary btn-sm">Start Task</button>
-                                        </form>
-                                    <?php elseif ($task['status'] === 'In Progress'): ?>
-                                        <!-- Mark as Done Checkbox -->
-                                        <form action="tasks.php" method="POST" class="d-inline">
-                                            <input type="hidden" name="task_id" value="<?= $task['task_id'] ?>">
-                                            <input type="hidden" name="status" value="Done">
-                                            <label>
-                                                <input type="checkbox" onchange="this.form.submit()"> Mark as Done
-                                            </label>
-                                        </form>
-                                    <?php elseif ($task['status'] === 'Done'): ?>
-                                        <!-- Reopen Task Button -->
-                                        <form action="tasks.php" method="POST" class="d-inline">
-                                            <input type="hidden" name="task_id" value="<?= $task['task_id'] ?>">
-                                            <input type="hidden" name="status" value="In Progress">
-                                            <button type="submit" class="btn btn-warning btn-sm">Reopen Task</button>
-                                        </form>
-                                    <?php endif; ?>
-                                </div>
-                            </li>
-                        <?php endforeach; ?>
-                    </ul>
+            <?php if (empty($tasks_by_project)): ?>
+                <div class="d-flex flex-column align-items-center justify-content-center p-5 text-center text-muted">
+                    <i class="bi bi-clipboard-x" style="font-size: 2.5rem;"></i>
+                    <p class="mt-3 mb-0">No tasks assigned to you yet.</p>
                 </div>
-            <?php endforeach; ?>
-        <?php endif; ?>
-    </div>
+            <?php else: ?>
+                <?php foreach ($tasks_by_project as $project): ?>
+                    <div class="card shadow-sm mb-4">
+                        <div class="card-header bg-primary text-white">
+                            <strong>Project:</strong> <?= htmlspecialchars($project['project_title']) ?>
+                        </div>
+                        <ul class="list-group list-group-flush">
+                            <?php foreach ($project['tasks'] as $task): ?>
+                                <li class="list-group-item">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <h5 class="mb-1"><?= htmlspecialchars($task['task_title']) ?></h5>
+                                            <p class="mb-1"><?= htmlspecialchars($task['description']) ?></p>
+                                            <small>
+                                                <strong>Due:</strong> <?= $task['due_date'] ?> |
+                                                <strong>Priority:</strong> <?= $task['priority'] ?> |
+                                                <strong>Status:</strong> <?= $task['status'] ?>
+                                            </small>
+                                        </div>
+                                        <div class="ms-3">
+                                            <!-- Task Actions -->
+                                            <?php if ($task['status'] === 'Pending'): ?>
+                                                <form action="tasks.php" method="POST" class="d-inline">
+                                                    <input type="hidden" name="task_id" value="<?= $task['task_id'] ?>">
+                                                    <input type="hidden" name="status" value="In Progress">
+                                                    <button type="submit" class="btn btn-primary btn-sm">Start Task</button>
+                                                </form>
+                                            <?php elseif ($task['status'] === 'In Progress'): ?>
+                                                <form action="tasks.php" method="POST" class="d-inline">
+                                                    <input type="hidden" name="task_id" value="<?= $task['task_id'] ?>">
+                                                    <input type="hidden" name="status" value="Done">
+                                                    <label class="mb-0">
+                                                        <input type="checkbox" onchange="this.form.submit()"> Mark as Done
+                                                    </label>
+                                                </form>
+                                            <?php elseif ($task['status'] === 'Done'): ?>
+                                                <form action="tasks.php" method="POST" class="d-inline">
+                                                    <input type="hidden" name="task_id" value="<?= $task['task_id'] ?>">
+                                                    <input type="hidden" name="status" value="In Progress">
+                                                    <button type="submit" class="btn btn-warning btn-sm">Reopen Task</button>
+                                                </form>
+                                            <?php endif; ?>
+                                        </div>
+                                    </div>
+                                </li>
+                            <?php endforeach; ?>
+                        </ul>
+                    </div>
+                <?php endforeach; ?>
+            <?php endif; ?>
+        </div>
+    </main>
 </div>
 
 <?php include('../includes/footer.php'); ?>

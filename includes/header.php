@@ -39,18 +39,17 @@ if (isset($_SESSION['user_id'])) {
 </head>
 <?php if ($current_page !== 'login.php' && $current_page !== 'register.php'): ?>
 <body>
-    <!-- Top Header -->
-    <header class="navbar navbar-expand-lg navbar-light bg-light shadow-sm" style="height:60px;">
+    <!-- Full-width Header -->
+    <header class="navbar navbar-expand-lg navbar-light bg-light shadow-sm fixed-top" style="height:60px; z-index:1040;">
         <div class="container-fluid">
             <!-- Logo and Brand -->
             <a class="navbar-brand fw-bold fs-4 d-flex align-items-center" href="/TaskTrackr/public/dashboard.php" style="height:60px;">
-                <img src="/TaskTrackr/assets/images/logo.png" alt="TaskTrackr Logo" style="width:36px;height:36px;" class="me-2">
-                TaskTrackr
+                <span class="d-none d-sm-inline">TaskTrackr</span>
             </a>
             <div class="d-flex align-items-center gap-3 ms-auto">
                 <!-- Notifications Icon -->
                 <a href="/TaskTrackr/public/notifications.php" class="btn btn-light position-relative" aria-label="Notifications">
-                    <i class="bi bi-bell"></i>
+                    <i class="bi bi-bell fs-5"></i>
                     <?php
                     include_once('../config/db.php');
                     if (isset($_SESSION['user_id'])) {
@@ -71,20 +70,20 @@ if (isset($_SESSION['user_id'])) {
                 </a>
                 <!-- Profile Dropdown -->
                 <div class="dropdown">
-                    <button class="btn btn-light dropdown-toggle d-flex align-items-center" type="button" id="profileDropdown" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Profile menu">
-                        <img src="<?= $profile_picture ?>" alt="Profile picture of <?= $username ?>" class="rounded-circle me-2" style="width: 30px; height: 30px;">
-                        <span><?php echo $username; ?></span>
+                    <button class="btn btn-light dropdown-toggle d-flex align-items-center px-2 py-1" type="button" id="profileDropdown" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Profile menu">
+                        <img src="<?= $profile_picture ?>" alt="Profile picture of <?= $username ?>" class="rounded-circle me-2" style="width: 32px; height: 32px; object-fit: cover;">
+                        <span class="fw-semibold d-none d-md-inline"><?= $username ?></span>
                     </button>
-                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="profileDropdown">
-                        <li><a class="dropdown-item" href="/TaskTrackr/public/profile.php">My Profile</a></li>
-                        <li><a class="dropdown-item" href="/TaskTrackr/public/settings.php">Settings</a></li>
+                    <ul class="dropdown-menu dropdown-menu-end shadow-sm animate__animated animate__fadeIn" aria-labelledby="profileDropdown">
+                        <li><a class="dropdown-item" href="/TaskTrackr/public/profile.php"><i class="bi bi-person me-2"></i>My Profile</a></li>
+                        <li><a class="dropdown-item" href="/TaskTrackr/public/settings.php"><i class="bi bi-gear me-2"></i>Settings</a></li>
                         <li><hr class="dropdown-divider"></li>
-                        <li><a class="dropdown-item text-danger" href="/TaskTrackr/actions/logout.php">Logout</a></li>
+                        <li><a class="dropdown-item text-danger" href="/TaskTrackr/actions/logout.php"><i class="bi bi-box-arrow-right me-2"></i>Logout</a></li>
                     </ul>
                 </div>
             </div>
         </div>
     </header>
-</body>
+    <div style="height:60px;"></div> <!-- Spacer for fixed header -->
 <?php endif; ?>
 </html>

@@ -8,11 +8,11 @@ function renderAlert($type, $message) {
     $icon = $type === 'success'
         ? '<i class="bi bi-check-circle-fill me-2"></i>'
         : '<i class="bi bi-exclamation-triangle-fill me-2"></i>';
-    $alertClass = $type === 'success' ? 'alert-success' : 'alert-danger';
+    $alertClass = $type === 'success' ? 'alert-success border-success shadow-sm' : 'alert-danger border-danger shadow-sm';
     echo <<<HTML
-    <div class="alert $alertClass alert-dismissible fade show d-flex align-items-center" role="alert" style="font-size: 1rem;">
+    <div class="alert $alertClass alert-dismissible fade show d-flex align-items-center gap-2 mb-3" role="alert" style="font-size: 1rem;">
         $icon
-        <div>$message</div>
+        <div class="flex-grow-1">$message</div>
         <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
     HTML;

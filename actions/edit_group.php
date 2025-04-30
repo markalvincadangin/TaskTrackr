@@ -53,7 +53,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_group'])) {
         $update_stmt->execute();
         $_SESSION['success_message'] = "Group name updated successfully.";
         
-        // After successful group name update
+        // Notify all members
         $members_query = "SELECT u.user_id, u.email FROM Users u
                           JOIN User_Groups ug ON u.user_id = ug.user_id
                           WHERE ug.group_id = ?";
@@ -122,7 +122,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_members'])) {
                 $notify_stmt->bind_param("is", $user['user_id'], $group_message);
                 $notify_stmt->execute();
 
-                // For each $member_id added
+                // Email notification
                 $email_query = "SELECT email FROM Users WHERE user_id = ?";
                 $email_stmt = $conn->prepare($email_query);
                 $email_stmt->bind_param("i", $user['user_id']);
@@ -178,7 +178,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['remove_user_id'])) {
         $remove_stmt->execute();
         $_SESSION['success_message'] = "Member removed successfully.";
 
-        // After successful removal
+        // Notify removed member
         $notify_query = "INSERT INTO Notifications (user_id, message) VALUES (?, ?)";
         $notify_stmt = $conn->prepare($notify_query);
         $message = "You have been removed from the group: " . htmlspecialchars($group['group_name']);
@@ -224,102 +224,103 @@ $members_result = $members_stmt->get_result();
 
 <div class="d-flex">
     <?php include('../includes/sidebar.php'); ?>
-    <div class="main-content flex-grow-1 p-4">
-        <h2 class="mb-4 text-center">Edit Group</h2>
+    <main class="main-content flex-grow-1 p-4">
+        <div class="container-fluid px-0">
+            <h2 class="mb-4 fw-bold"><i class="bi bi-people me-2"></i>Edit Group</h2>
 
-        <?php include('../includes/alerts.php'); ?>
+            <?php include('../includes/alerts.php'); ?>
 
-        <!-- Edit Group Name Card -->
-        <div class="card shadow-sm p-4 mb-4">
-            <div class="card-body">
-                <h5 class="card-title mb-3">Group Name</h5>
-                <form method="POST" class="row g-3 align-items-end">
-                    <div class="col-md-8">
-                        <label for="group_name" class="form-label small">Edit Group Name</label>
-                        <input type="text" name="group_name" id="group_name" class="form-control" value="<?= htmlspecialchars($group['group_name']) ?>" required>
-                    </div>
-                    <div class="col-md-4">
-                        <button type="submit" name="update_group" class="btn btn-primary w-100">
-                            <i class="bi bi-save me-1"></i> Update Name
-                        </button>
-                    </div>
-                </form>
+            <!-- Edit Group Name Card -->
+            <div class="card shadow-sm p-4 mb-4">
+                <div class="card-body">
+                    <h5 class="card-title mb-3">Group Name</h5>
+                    <form method="POST" class="row g-3 align-items-end">
+                        <div class="col-md-8">
+                            <label for="group_name" class="form-label small">Edit Group Name</label>
+                            <input type="text" name="group_name" id="group_name" class="form-control" value="<?= htmlspecialchars($group['group_name']) ?>" required>
+                        </div>
+                        <div class="col-md-4">
+                            <button type="submit" name="update_group" class="btn btn-primary w-100">
+                                <i class="bi bi-save me-1"></i> Update Name
+                            </button>
+                        </div>
+                    </form>
+                </div>
             </div>
-        </div>
 
-        <!-- Add Members Card -->
-        <div class="card shadow-sm p-4 mb-4">
-            <div class="card-body">
-                <h5 class="card-title mb-3">Add Members by Email</h5>
-                <form method="POST" class="row g-3 align-items-end">
-                    <div class="col-12" id="emailFields">
-                        <div class="row g-2 mb-2 align-items-center email-input-row">
-                            <div class="col flex-grow-1">
-                                <input type="email" name="member_emails[]" class="form-control" placeholder="Enter member email" required>
-                            </div>
-                            <div class="col-auto">
-                                <button type="button" class="btn btn-outline-secondary add-email-btn" tabindex="-1" title="Add another member">
-                                    <i class="bi bi-plus"></i>
-                                </button>
+            <!-- Add Members Card -->
+            <div class="card shadow-sm p-4 mb-4">
+                <div class="card-body">
+                    <h5 class="card-title mb-3">Add Members by Email</h5>
+                    <form method="POST" class="row g-3 align-items-end">
+                        <div class="col-12" id="emailFields">
+                            <div class="row g-2 mb-2 align-items-center email-input-row">
+                                <div class="col flex-grow-1">
+                                    <input type="email" name="member_emails[]" class="form-control" placeholder="Enter member email" required>
+                                </div>
+                                <div class="col-auto">
+                                    <button type="button" class="btn btn-outline-secondary add-email-btn" tabindex="-1" title="Add another member">
+                                        <i class="bi bi-plus"></i>
+                                    </button>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="col-12">
-                        <button type="submit" name="add_members" class="btn btn-primary w-100">
-                            <i class="bi bi-person-plus me-1"></i> Add Members
-                        </button>
-                    </div>
-                </form>
+                        <div class="col-12">
+                            <button type="submit" name="add_members" class="btn btn-primary w-100">
+                                <i class="bi bi-person-plus me-1"></i> Add Members
+                            </button>
+                        </div>
+                    </form>
+                </div>
             </div>
-        </div>
 
-        <!-- Current Members Card -->
-        <div class="card shadow-sm p-4 mb-4">
-            <div class="card-body">
-                <h5 class="card-title mb-3">Current Members</h5>
-                <div class="table-responsive">
-                    <table class="table table-bordered table-hover align-middle mb-0">
-                        <thead class="table-light">
-                            <tr>
-                                <th>Email</th>
-                                <th class="text-center">Role</th>
-                                <th class="text-center">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php
-                            // Reset pointer and fetch again for table
-                            $members_stmt->data_seek(0);
-                            while ($member = $members_result->fetch_assoc()): ?>
+            <!-- Current Members Card -->
+            <div class="card shadow-sm p-4 mb-4">
+                <div class="card-body">
+                    <h5 class="card-title mb-3">Current Members</h5>
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-hover align-middle mb-0">
+                            <thead class="table-light">
                                 <tr>
-                                    <td><?= htmlspecialchars($member['email']) ?></td>
-                                    <td class="text-center">
-                                        <?php if ($member['user_id'] == $group['created_by']): ?>
-                                            <span class="badge bg-success">Creator</span>
-                                        <?php else: ?>
-                                            <span class="badge bg-secondary">Member</span>
-                                        <?php endif; ?>
-                                    </td>
-                                    <td class="text-center">
-                                        <?php if ($member['user_id'] != $group['created_by']): ?>
-                                            <form method="POST" class="d-inline">
-                                                <input type="hidden" name="remove_user_id" value="<?= $member['user_id'] ?>">
-                                                <button type="submit" class="btn btn-danger btn-sm" title="Remove" onclick="return confirm('Remove this member?')">
-                                                    <i class="bi bi-trash"></i>
-                                                </button>
-                                            </form>
-                                        <?php else: ?>
-                                            <span class="text-muted">-</span>
-                                        <?php endif; ?>
-                                    </td>
+                                    <th>Email</th>
+                                    <th class="text-center">Role</th>
+                                    <th class="text-center">Actions</th>
                                 </tr>
-                            <?php endwhile; ?>
-                        </tbody>
-                    </table>
+                            </thead>
+                            <tbody>
+                                <?php
+                                $members_stmt->data_seek(0);
+                                while ($member = $members_result->fetch_assoc()): ?>
+                                    <tr>
+                                        <td><?= htmlspecialchars($member['email']) ?></td>
+                                        <td class="text-center">
+                                            <?php if ($member['user_id'] == $group['created_by']): ?>
+                                                <span class="badge bg-success">Creator</span>
+                                            <?php else: ?>
+                                                <span class="badge bg-secondary">Member</span>
+                                            <?php endif; ?>
+                                        </td>
+                                        <td class="text-center">
+                                            <?php if ($member['user_id'] != $group['created_by']): ?>
+                                                <form method="POST" class="d-inline">
+                                                    <input type="hidden" name="remove_user_id" value="<?= $member['user_id'] ?>">
+                                                    <button type="submit" class="btn btn-danger btn-sm" title="Remove" onclick="return confirm('Remove this member?')">
+                                                        <i class="bi bi-trash"></i>
+                                                    </button>
+                                                </form>
+                                            <?php else: ?>
+                                                <span class="text-muted">-</span>
+                                            <?php endif; ?>
+                                        </td>
+                                    </tr>
+                                <?php endwhile; ?>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
+    </main>
 </div>
 
 <script>
