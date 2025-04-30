@@ -1,86 +1,91 @@
 # TaskTrackr
 
-TaskTrackr is a lightweight task management application designed to help users organize and track their daily tasks efficiently.
+TaskTrackr is a lightweight, modern task management application designed to help users organize and track their daily tasks efficiently.
 
-## Features
+---
 
-- Add, edit, and delete tasks.
-- Mark tasks as completed.
-- Categorize tasks by priority or tags.
-- Group and project management.
-- In-app and email notifications for important events.
-- Automated reminders for upcoming and overdue tasks.
-- User profile and settings (including dark mode and custom reminder days).
-- Responsive and user-friendly interface.
+## 🚀 Features
 
-## Installation
+- Add, edit, and delete tasks
+- Mark tasks as completed
+- Categorize tasks by priority or tags
+- Group and project management
+- In-app and email notifications for important events
+- Automated reminders for upcoming and overdue tasks
+- User profile and settings (custom reminder days)
+- Responsive, modern, and user-friendly interface
+
+---
+
+## 📸 Screenshots
+
+>
+> ![Dashboard](assets/screenshots/dashboard.png)
+> ![Task List](assets/screenshots/tasks.png)
+> ![Project List](assets/screenshots/projects.png)
+> ![Groups](assets/screenshots/groups.png)
+
+---
+
+## ⚡ Quick Start
 
 1. **Clone the repository:**
     ```bash
     git clone https://github.com/markalvincadangin/TaskTrackr.git
+    cd TaskTrackr
     ```
-2. **Navigate to the project directory:**
-    ```bash
-    cd path/to/TaskTrackr
-    ```
-   Replace `path/to/TaskTrackr` with the actual path where you cloned the repository. For example, if you cloned it into `C:\xampp\htdocs`, use:
-    ```bash
-    cd C:\xampp\htdocs\TaskTrackr
-    ```
+2. **Install XAMPP** and start Apache/MySQL ([Download XAMPP](https://www.apachefriends.org/)).
+3. **Import the database:**
+    - Open [http://localhost/phpmyadmin](http://localhost/phpmyadmin)
+    - Create a database named `tasktrackr`
+    - Import `database/tasktrackr.sql`
+4. **Configure the app:**
+    - Edit `config/db.php` with your DB credentials.
+5. **Configure email sending:**
+    - Edit `includes/email_sender.php` with your SMTP settings (see below).
+6. **Open the app:**
+    - Go to [http://localhost/TaskTrackr](http://localhost/TaskTrackr)
 
-## Setup Instructions
+---
+
+## 🛠️ Setup Instructions
 
 ### 1. Install XAMPP
-   - Download and install XAMPP from [https://www.apachefriends.org/](https://www.apachefriends.org/).
-   - Start the Apache and MySQL services from the XAMPP Control Panel.
+- Download and install XAMPP from [https://www.apachefriends.org/](https://www.apachefriends.org/).
+- Start the Apache and MySQL services from the XAMPP Control Panel.
 
 ### 2. Configure the Database
-   1. Open `phpMyAdmin` by navigating to:
-      ```
-      http://localhost/phpmyadmin
-      ```
-   2. Create a new database named `tasktrackr`.
-   3. Import the database schema:
-      - Click on the `tasktrackr` database.
-      - Go to the `Import` tab.
-      - Select the SQL file located in the `database` folder of this project (e.g., `tasktrackr.sql`).
-      - Click `Go` to import the schema.
+- Open `phpMyAdmin` at [http://localhost/phpmyadmin](http://localhost/phpmyadmin)
+- Create a new database named `tasktrackr`
+- Import the schema from `database/tasktrackr.sql`
 
 ### 3. Configure the Application
-   - Open the `config/db.php` file in the project directory.
-   - Update the database connection settings if necessary:
-     ```php
-     // filepath: c:\xampp\htdocs\TaskTrackr\config\db.php
-     $host = 'localhost';
-     $user = 'root';
-     $password = ''; // Add your MySQL password if applicable
-     $database = 'tasktrackr';
-     ```
+- Edit `config/db.php`:
+    ```php
+    $host = 'localhost';
+    $user = 'root';
+    $password = ''; // Add your MySQL password if applicable
+    $database = 'tasktrackr';
+    ```
 
 ### 4. Configure Email Sending
-   - PHPMailer is already included in the project folder under `vendor/phpmailer/`.
-   - **No need to download PHPMailer separately.**
-   - Edit `includes/email_sender.php` and set your SMTP server, username, and password.
-   - For Gmail, use an App Password and set:
-     ```php
-     $mail->Host = 'smtp.gmail.com';
-     $mail->Username = 'your.email@gmail.com';
-     $mail->Password = 'your_app_password';
-     $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-     $mail->Port = 587;
-     ```
-   - For Gmail, use an **App Password**:
-     - Go to [https://myaccount.google.com/apppasswords](https://myaccount.google.com/apppasswords)
-     - Create an app password and paste it in `includes/email_sender.php` as your SMTP password.
-   - Make sure your SMTP credentials are correct and your email provider allows SMTP access.
+- PHPMailer is included in `vendor/phpmailer/`
+- Edit `includes/email_sender.php`:
+    ```php
+    $mail->Host = 'smtp.gmail.com';
+    $mail->Username = 'your.email@gmail.com';
+    $mail->Password = 'your_app_password';
+    $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+    $mail->Port = 587;
+    ```
+- For Gmail, use an [App Password](https://myaccount.google.com/apppasswords).
 
 ### 5. Start the Application
-   - Open your browser and navigate to:
-     ```
-     http://localhost/TaskTrackr
-     ```
+- Open your browser and go to [http://localhost/TaskTrackr](http://localhost/TaskTrackr)
 
-## Automated Task Reminders
+---
+
+## 🔔 Automated Task Reminders
 
 TaskTrackr includes a script to automatically send reminders for upcoming and overdue tasks.
 
@@ -111,17 +116,64 @@ TaskTrackr includes a script to automatically send reminders for upcoming and ov
       `C:\xampp\htdocs\TaskTrackr\actions`
 6. Finish and test by right-clicking the task and choosing **Run**.
 
-## Usage
+---
 
-1. Open your browser and navigate to:
-    ```
-    http://localhost/TaskTrackr
-    ```
+## 📂 Folder Structure
+
+```
+TaskTrackr/
+│
+├── assets/         # CSS, images
+├── config/         # Database configuration
+├── database/       # SQL schema
+├── includes/       # Shared components (header, sidebar, footer, alerts)
+├── public/         # Main entry points (login, register, dashboard, etc.)
+├── actions/        # Form handlers and backend logic
+├── vendor/         # PHPMailer 
+└── README.md
+```
+
+---
+
+## 📦 Dependencies
+
+- [PHPMailer](https://github.com/PHPMailer/PHPMailer) (included)
+- Bootstrap 5 (CDN)
+- Bootstrap Icons (CDN)
+
+---
+
+## 🖥️ Usage
+
+1. Open your browser and navigate to [http://localhost/TaskTrackr](http://localhost/TaskTrackr)
 2. Register a new account or log in.
 3. Start managing your tasks, projects, and groups!
 4. Set your reminder preferences and dark mode in the Settings page.
 
-## Contributing
+---
+
+## ⚠️ Known Issues / Limitations
+
+- No password reset functionality yet.
+- No mobile push notifications.
+- Email notifications depend on correct SMTP setup.
+
+---
+
+## ♿ Accessibility & Browser Support
+
+- Uses semantic HTML and ARIA labels.
+- Tested on Chrome, and Edge.
+
+---
+
+## 🙋 Support
+
+For issues, open a GitHub issue or contact [markalvincadangin@gmail.com](mailto:markalvincadangin@gmail.com).
+
+---
+
+## 🤝 Contributing
 
 Contributions are welcome! Please follow these steps:
 
@@ -140,11 +192,12 @@ Contributions are welcome! Please follow these steps:
     ```
 5. Open a pull request.
 
-## Acknowledgments
+---
+
+## 🙏 Acknowledgments
 
 - Built with PHP and XAMPP.
 - Inspired by the need for simple task management tools.
-- Thanks to the open-source community for their support.
 - Special thanks to **Group 5** for their contributions:
   - Brillantes, Luisa Rose
   - Cadangin, Mark Alvin
