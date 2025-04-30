@@ -6,14 +6,15 @@ TaskTrackr is a lightweight, modern task management application designed to help
 
 ## 🚀 Features
 
-- Add, edit, and delete tasks
-- Mark tasks as completed
-- Categorize tasks by priority or tags
-- Group and project management
-- In-app and email notifications for important events
-- Automated reminders for upcoming and overdue tasks
-- User profile and settings (custom reminder days)
-- Responsive, modern, and user-friendly interface
+- **Create Projects:** Start new projects, set deadlines, add descriptions, and categorize them.
+- **Add Tasks to Projects:** For each project, add tasks with details like title, description, deadline, and priority.
+- **Assign Tasks to Members:** Assign tasks to yourself or to group members (if the project is a group project).
+- **Group and Project Management:** Create groups, invite members by email, and manage group membership.
+- **Task Status Tracking:** Mark tasks as Pending, In Progress, or Done. Reopen completed tasks if needed.
+- **In-app and Email Notifications:** Receive notifications for assignments, updates, and reminders.
+- **Automated Reminders:** Get notified (in-app and via email) about upcoming and overdue tasks based on your settings.
+- **User Profile and Settings:** Update your profile, change your password, and set how many days in advance you want reminders.
+- **Responsive, Modern UI:** Clean, mobile-friendly interface with Bootstrap 5 and icons.
 
 ---
 
@@ -171,7 +172,7 @@ TaskTrackr/
 
 ## 🙋 Support
 
-For issues, open a GitHub issue or contact [markalvincadangin@gmail.com](mailto:markalvincadangin@gmail.com).
+For issues, open a GitHub issue or contact [markalvin.cadangin@wvsu.edu.ph](mailto:markalvin.cadangin@wvsu.edu.ph).
 
 ---
 
