@@ -51,6 +51,35 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($result) {
         // If successful, redirect to the projects page
         $_SESSION['success_message'] = 'Project created successfully.';
+        if (!empty($group_id)) {
+            // Notify all group members about the new project
+            $members_query = "SELECT user_id FROM User_Groups WHERE group_id = ?";
+            $members_stmt = $conn->prepare($members_query);
+            $members_stmt->bind_param("i", $group_id);
+            $members_stmt->execute();
+            $members_result = $members_stmt->get_result();
+            while ($member = $members_result->fetch_assoc()) {
+                $notify_query = "INSERT INTO Notifications (user_id, message) VALUES (?, ?)";
+                $notify_stmt = $conn->prepare($notify_query);
+                $message = "A new project '{$title}' has been created for your group.";
+                $notify_stmt->bind_param("is", $member['user_id'], $message);
+                $notify_stmt->execute();
+    
+                // For each $member['user_id']
+                $email_query = "SELECT email FROM Users WHERE user_id = ?";
+                $email_stmt = $conn->prepare($email_query);
+                $email_stmt->bind_param("i", $member['user_id']);
+                $email_stmt->execute();
+                $email_result = $email_stmt->get_result();
+                $user_email = $email_result->fetch_assoc()['email'] ?? null;
+    
+                if ($user_email) {
+                    $subject = "New Project Assigned: $title";
+                    $body = "A new project '$title' has been created for your group.";
+                    sendUserEmail($user_email, $subject, $body);
+                }
+            }
+        }
         header("Location: /TaskTrackr/public/projects.php");
         exit();
     } else {
@@ -58,36 +87,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $_SESSION['error_message'] = 'Failed to create project: ' . $stmt->error;
         header("Location: /TaskTrackr/public/projects.php");
         exit();
-    }
-
-    if ($result && !empty($group_id)) {
-        // Notify all group members about the new project
-        $members_query = "SELECT user_id FROM User_Groups WHERE group_id = ?";
-        $members_stmt = $conn->prepare($members_query);
-        $members_stmt->bind_param("i", $group_id);
-        $members_stmt->execute();
-        $members_result = $members_stmt->get_result();
-        while ($member = $members_result->fetch_assoc()) {
-            $notify_query = "INSERT INTO Notifications (user_id, message) VALUES (?, ?)";
-            $notify_stmt = $conn->prepare($notify_query);
-            $message = "A new project '{$title}' has been created for your group.";
-            $notify_stmt->bind_param("is", $member['user_id'], $message);
-            $notify_stmt->execute();
-
-            // For each $member['user_id']
-            $email_query = "SELECT email FROM Users WHERE user_id = ?";
-            $email_stmt = $conn->prepare($email_query);
-            $email_stmt->bind_param("i", $member['user_id']);
-            $email_stmt->execute();
-            $email_result = $email_stmt->get_result();
-            $user_email = $email_result->fetch_assoc()['email'] ?? null;
-
-            if ($user_email) {
-                $subject = "New Project Assigned: $title";
-                $body = "A new project '$title' has been created for your group.";
-                sendUserEmail($user_email, $subject, $body);
-            }
-        }
     }
 }
 ?>
