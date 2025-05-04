@@ -20,6 +20,16 @@ if (!$task_id || !$project_id) {
     exit();
 }
 
+// Fetch assigned_to and title from the task
+$task_query = "SELECT assigned_to, title FROM Tasks WHERE task_id = ?";
+$task_stmt = $conn->prepare($task_query);
+$task_stmt->bind_param("i", $task_id);
+$task_stmt->execute();
+$task_result = $task_stmt->get_result();
+$task_row = $task_result->fetch_assoc();
+$assigned_to = $task_row['assigned_to'];
+$title = $task_row['title'];
+
 // Before deleting the task
 $assigned_user_query = "SELECT u.user_id, u.email FROM Users u WHERE u.user_id = ?";
 $assigned_user_stmt = $conn->prepare($assigned_user_query);

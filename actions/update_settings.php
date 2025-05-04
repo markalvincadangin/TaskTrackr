@@ -23,14 +23,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if ($result->num_rows > 0) {
         // Update existing settings
-        $update_query = "UPDATE User_Settings SET reminder_days_before = ?, dark_mode = ? WHERE user_id = ?";
+        $update_query = "UPDATE User_Settings SET reminder_days_before = ? WHERE user_id = ?";
         $stmt = $conn->prepare($update_query);
         $stmt->bind_param("ii", $reminder_days_before, $user_id);
     } else {
         // Insert new settings
-        $insert_query = "INSERT INTO User_Settings (user_id, reminder_days_before, dark_mode) VALUES (?, ?, ?)";
+        $insert_query = "INSERT INTO User_Settings (user_id, reminder_days_before) VALUES (?, ?)";
         $stmt = $conn->prepare($insert_query);
-        $stmt->bind_param("iii", $user_id, $reminder_days_before, $dark_mode);
+        $stmt->bind_param("ii", $user_id, $reminder_days_before);
     }
 
     if ($stmt->execute()) {

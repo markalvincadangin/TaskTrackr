@@ -29,7 +29,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit();
     }
 
-    // Handle profile picture upload (optional)
+    // Handle profile picture upload 
     $profile_img_path = null;
     if (!empty($profile_img['name'])) {
         $allowed_extensions = ['jpg', 'jpeg', 'png', 'gif'];

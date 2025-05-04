@@ -53,7 +53,6 @@ $reminder_days_before = $settings['reminder_days_before'] ?? 1;
                             </form>
                         </div>
                     </div>
-                    <!-- Add more settings cards here if needed -->
                 </div>
             </div>
         </div>

@@ -33,7 +33,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // If update is successful
         $_SESSION['success_message'] = 'Project updated successfully.';
 
-        // After successful project update
+        // After successful project update, notify all group members
+        $project_stmt = $conn->prepare("SELECT title, group_id FROM Projects WHERE project_id = ?");
+        $project_stmt->bind_param("i", $project_id);
+        $project_stmt->execute();
+        $project_result = $project_stmt->get_result();
+        $project = $project_result->fetch_assoc();
+
         if (!empty($project['group_id'])) {
             $members_query = "SELECT u.user_id, u.email FROM Users u
                               JOIN User_Groups ug ON u.user_id = ug.user_id
