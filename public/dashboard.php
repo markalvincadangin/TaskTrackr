@@ -2,6 +2,7 @@
 <?php
 session_start();
 include('../config/db.php');
+include('../actions/send_task_reminders.php');
 
 // 🔐 Authentication Check
 if (!isset($_SESSION['user_id'])) {
