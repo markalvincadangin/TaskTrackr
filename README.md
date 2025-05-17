@@ -1,9 +1,5 @@
 # TaskTrackr
 
-[![PHP](https://img.shields.io/badge/PHP-8.0%2B-blue?logo=php)](https://www.php.net/)
-[![Bootstrap](https://img.shields.io/badge/Bootstrap-5.x-purple?logo=bootstrap)](https://getbootstrap.com/)
-[![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
-
 TaskTrackr is a lightweight, modern task management application designed to help users organize and track their daily tasks efficiently.
 
 ---
