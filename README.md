@@ -25,7 +25,7 @@ TaskTrackr is a lightweight, modern task management application designed to help
 > ![Task List](documentation/screenshots/tasks.png)
 > ![Project List](documentation/screenshots/projects.png)
 > ![Groups](documentation/screenshots/groups.png)
-
+> ![Project Tasks List](documentation/screenshots/task-project.png)
 ---
 
 ## ⚡ Quick Start

@@ -65,11 +65,10 @@ $group_result = $stmt->get_result();
                                                 <?php
                                                 // Fetch members for this group
                                                 $members_query = "
-                                                    SELECT u.CONCAT(u.first_name, ' ', u.last_name)
+                                                    SELECT CONCAT(u.first_name, ' ', u.last_name) AS name
                                                     FROM Users u
                                                     JOIN User_Groups ug ON u.user_id = ug.user_id
-                                                    WHERE ug.group_id = ?
-                                                ";
+                                                    WHERE ug.group_id = ?";
                                                 $members_stmt = $conn->prepare($members_query);
                                                 $members_stmt->bind_param("i", $group['group_id']);
                                                 $members_stmt->execute();
