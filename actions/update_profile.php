@@ -12,12 +12,13 @@ if (!isset($_SESSION['user_id'])) {
 $user_id = $_SESSION['user_id'];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $name = trim($_POST['name']);
+    $firstname = trim($_POST['firstname']);
+    $lastname = trim($_POST['lastname']);
     $email = trim($_POST['email']);
     $profile_img = $_FILES['profile_img'];
 
     // Validate inputs
-    if (empty($name) || empty($email)) {
+    if (empty($firstname) || empty($lastname) || empty($email)) {
         $_SESSION['error_message'] = "Name and email cannot be empty.";
         header("Location: ../public/profile.php");
         exit();
@@ -74,13 +75,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     // Update user information
-    $query = "UPDATE Users SET name = ?, email = ?" . ($profile_img_path ? ", profile_picture = ?" : "") . " WHERE user_id = ?";
+    $query = "UPDATE Users SET first_name = ?, last_name = ?, email = ?" . ($profile_img_path ? ", profile_picture = ?" : "") . " WHERE user_id = ?";
     $stmt = $conn->prepare($query);
 
     if ($profile_img_path) {
-        $stmt->bind_param("sssi", $name, $email, $profile_img_path, $user_id);
+        $stmt->bind_param("ssssi", $firstname, $lastname, $email, $profile_img_path, $user_id);
     } else {
-        $stmt->bind_param("ssi", $name, $email, $user_id);
+        $stmt->bind_param("sssi", $firstname, $lastname, $email, $user_id);
     }
 
     if ($stmt->execute()) {

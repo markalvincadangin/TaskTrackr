@@ -63,7 +63,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
             }
         }
-
         header("Location: /TaskTrackr/public/projects.php");
         exit();
     } else {

@@ -11,10 +11,17 @@
 
         <form action="../actions/register_action.php" method="POST" autocomplete="off">
             <div class="mb-3">
-                <label for="name" class="form-label fw-semibold">Full Name</label>
+                <label for="first_name" class="form-label fw-semibold">First Name</label>
                 <div class="input-group">
                     <span class="input-group-text bg-light"><i class="bi bi-person"></i></span>
-                    <input type="text" name="name" id="name" class="form-control" placeholder="Enter your full name" required>
+                    <input type="text" name="first_name" id="first_name" class="form-control" placeholder="Enter your first name" required>
+                </div>
+            </div>
+            <div class="mb-3">
+                <label for="last_name" class="form-label fw-semibold">Last Name</label>
+                <div class="input-group">
+                    <span class="input-group-text bg-light"><i class="bi bi-person-fill"></i></span>
+                    <input type="text" name="last_name" id="last_name" class="form-control" placeholder="Enter your last name" required>
                 </div>
             </div>
             <div class="mb-3">

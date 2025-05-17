@@ -14,6 +14,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         ? max(1, min(30, intval($_POST['reminder_days_before'])))
         : 1;
 
+    $theme = isset($_POST['theme']) ? $_POST['theme'] : 'light';
+
     // Check if the user already has settings
     $check_query = "SELECT user_id FROM User_Settings WHERE user_id = ?";
     $stmt = $conn->prepare($check_query);
@@ -23,18 +25,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if ($result->num_rows > 0) {
         // Update existing settings
-        $update_query = "UPDATE User_Settings SET reminder_days_before = ? WHERE user_id = ?";
+        $update_query = "UPDATE User_Settings SET reminder_days_before = ?, theme = ? WHERE user_id = ?";
         $stmt = $conn->prepare($update_query);
-        $stmt->bind_param("ii", $reminder_days_before, $user_id);
+        $stmt->bind_param("isi", $reminder_days_before, $theme, $user_id);
     } else {
         // Insert new settings
-        $insert_query = "INSERT INTO User_Settings (user_id, reminder_days_before) VALUES (?, ?)";
+        $insert_query = "INSERT INTO User_Settings (user_id, reminder_days_before, theme) VALUES (?, ?, ?)";
         $stmt = $conn->prepare($insert_query);
-        $stmt->bind_param("ii", $user_id, $reminder_days_before);
+        $stmt->bind_param("iis", $user_id, $reminder_days_before, $theme);
     }
 
     if ($stmt->execute()) {
         $_SESSION['success_message'] = "Settings updated successfully.";
+        $_SESSION['theme'] = $theme;
     } else {
         $_SESSION['error_message'] = "Failed to update settings. Please try again.";
     }

@@ -4,7 +4,8 @@ include '../config/db.php';
 include_once('../includes/email_sender.php');
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $name     = trim($_POST['name']);
+    $firstname = trim($_POST['first_name']);
+    $lastname = trim($_POST['last_name']);
     $email    = trim($_POST['email']);
     $password = $_POST['password'];
     $confirm  = $_POST['confirm_password'];
@@ -32,11 +33,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $hashedPassword = password_hash($password, PASSWORD_BCRYPT);
 
     // Insert new user
-    $query = "INSERT INTO Users (name, email, password) VALUES (?, ?, ?)";
+    $query = "INSERT INTO Users (first_name, last_name, email, password) VALUES (?, ?, ?, ?)";
     $stmt  = $conn->prepare($query);
     
     if ($stmt) {
-        $stmt->bind_param("sss", $name, $email, $hashedPassword);
+        $stmt->bind_param("ssss", $firstname, $lastname, $email, $hashedPassword);
 
         if ($stmt->execute()) {
             $new_user_id = $stmt->insert_id;

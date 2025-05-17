@@ -1,5 +1,9 @@
 # TaskTrackr
 
+[![PHP](https://img.shields.io/badge/PHP-8.0%2B-blue?logo=php)](https://www.php.net/)
+[![Bootstrap](https://img.shields.io/badge/Bootstrap-5.x-purple?logo=bootstrap)](https://getbootstrap.com/)
+[![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
+
 TaskTrackr is a lightweight, modern task management application designed to help users organize and track their daily tasks efficiently.
 
 ---
@@ -10,17 +14,17 @@ TaskTrackr is a lightweight, modern task management application designed to help
 - **Add Tasks to Projects:** For each project, add tasks with details like title, description, deadline, and priority.
 - **Assign Tasks to Members:** Assign tasks to yourself or to group members (if the project is a group project).
 - **Group and Project Management:** Create groups, invite members by email, and manage group membership.
-- **Task Status Tracking:** Mark tasks as Pending, In Progress, or Done. Reopen completed tasks if needed.
+- **Task Status Tracking:** Mark tasks as Pending, In Progress, Done, or Overdue. Reopen completed tasks if needed.
 - **In-app and Email Notifications:** Receive notifications for assignments, updates, and reminders.
 - **Automated Reminders:** Get notified (in-app and via email) about upcoming and overdue tasks based on your settings.
 - **User Profile and Settings:** Update your profile, change your password, and set how many days in advance you want reminders.
+- **Theme Support:** Switch between light and dark themes.
 - **Responsive, Modern UI:** Clean, mobile-friendly interface with Bootstrap 5 and icons.
 
 ---
 
 ## 📸 Screenshots
 
->
 > ![Dashboard](documentation/screenshots/dashboard.png)
 > ![Task List](documentation/screenshots/tasks.png)
 > ![Project List](documentation/screenshots/projects.png)
@@ -45,7 +49,7 @@ TaskTrackr is a lightweight, modern task management application designed to help
 5. **Configure email sending:**
     - Edit `includes/email_sender.php` with your SMTP settings (see below).
 6. **Open the app:**
-    - Go to [http://localhost/TaskTrackr](http://localhost/TaskTrackr)
+    - Go to [http://localhost/TaskTrackr/public/login.php](http://localhost/TaskTrackr/public/login.php)
 
 ---
 
@@ -141,8 +145,8 @@ TaskTrackr/
 ## 📦 Dependencies
 
 - [PHPMailer](https://github.com/PHPMailer/PHPMailer) (included)
-- Bootstrap 5 (CDN)
-- Bootstrap Icons (CDN)
+- [Bootstrap 5](https://getbootstrap.com/) (CDN)
+- [Bootstrap Icons](https://icons.getbootstrap.com/) (CDN)
 
 ---
 
@@ -152,6 +156,7 @@ TaskTrackr/
 2. Register a new account or log in.
 3. Start managing your tasks, projects, and groups!
 4. Set your reminder preferences in the Settings page.
+5. Switch between light and dark themes in your profile or settings.
 
 ---
 
@@ -160,13 +165,15 @@ TaskTrackr/
 - No password reset functionality yet.
 - No mobile push notifications.
 - Email notifications depend on correct SMTP setup.
+- Only tested on Chrome and Edge.
 
 ---
 
 ## ♿ Accessibility & Browser Support
 
-- Uses semantic HTML and ARIA labels.
-- Tested on Chrome, and Edge.
+- Uses semantic HTML and ARIA labels for better accessibility.
+- Fully responsive and mobile-friendly.
+- Tested on latest Chrome and Edge browsers.
 
 ---
 
@@ -209,3 +216,5 @@ Contributions are welcome! Please follow these steps:
   - Manago, Tristan
   - Serra, Alyanna Bianca
   - Tacleon, Ellen Mae
+
+---

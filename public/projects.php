@@ -14,7 +14,7 @@ $user_id = $_SESSION['user_id'];
 
 // Fetch user's projects with group and creator names in one query
 $project_query = "
-    SELECT p.*, c.name AS category_name, g.group_name, u.name AS creator_name
+    SELECT p.*, c.name AS category_name, g.group_name, CONCAT(u.first_name, ' ', u.last_name) AS creator_name
     FROM Projects p
     JOIN Categories c ON p.category_id = c.category_id
     LEFT JOIN `Groups` g ON p.group_id = g.group_id

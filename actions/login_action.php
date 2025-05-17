@@ -7,7 +7,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $password = $_POST['password'];
 
     // Fetch user by email
-    $stmt = $conn->prepare("SELECT user_id, name, email, password, role FROM Users WHERE email = ?");
+    $stmt = $conn->prepare("SELECT user_id, first_name, last_name, email, password, role FROM Users WHERE email = ?");
     $stmt->bind_param("s", $email);
     $stmt->execute();
     $result = $stmt->get_result();
@@ -22,8 +22,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // if (password_verify($password, $user['password'])) {
         if (password_verify($password, $user['password'])) {
             $_SESSION['user_id'] = $user['user_id'];
-            $_SESSION['name'] = $user['name'];
+            $_SESSION['firstname'] = $user['first_name'];
+            $_SESSION['lastname'] = $user['last_name'];
             $_SESSION['role'] = $user['role'];
+
+            // Fetch user settings
+            $settings_query = "SELECT theme FROM User_Settings WHERE user_id = ?";
+            $settings_stmt = $conn->prepare($settings_query);
+            $settings_stmt->bind_param("i", $user['user_id']);
+            $settings_stmt->execute();
+            $settings_result = $settings_stmt->get_result();
+            if ($settings = $settings_result->fetch_assoc()) {
+                $_SESSION['theme'] = $settings['theme'];
+            } else {
+                $_SESSION['theme'] = 'light';
+            }
 
             header("Location: ../public/dashboard.php");
             exit();

@@ -108,7 +108,7 @@ $creator_id = $project_row['created_by'];
                                             <option value="">-- Select Member --</option>
                                             <?php
                                             // Fetch members of that group
-                                            $member_query = "SELECT u.user_id, u.name 
+                                            $member_query = "SELECT u.user_id, CONCAT(u.first_name, ' ', u.last_name) AS name 
                                                              FROM Users u 
                                                              INNER JOIN User_Groups ug ON u.user_id = ug.user_id 
                                                              WHERE ug.group_id = ?";

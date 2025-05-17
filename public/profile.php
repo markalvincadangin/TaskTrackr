@@ -13,7 +13,7 @@ if (!isset($_SESSION['user_id'])) {
 $user_id = $_SESSION['user_id'];
 
 // Fetch user data
-$query = "SELECT name, email, role, date_created, profile_picture FROM Users WHERE user_id = ?";
+$query = "SELECT first_name, last_name, email, role, date_created, profile_picture FROM Users WHERE user_id = ?";
 $stmt = $conn->prepare($query);
 $stmt->bind_param("i", $user_id);
 $stmt->execute();
@@ -38,9 +38,11 @@ $user = $stmt->get_result()->fetch_assoc();
                             <?php if (!empty($user['profile_picture'])): ?>
                                 <img src="<?= htmlspecialchars($user['profile_picture']) ?>" class="rounded-circle mb-3" width="120" height="120" alt="Profile Picture">
                             <?php else: ?>
-                                <img src="../assets/images/default-profile.png" class="rounded-circle mb-3" width="120" height="120" alt="Profile Picture">
+                                <span class="d-inline-flex justify-content-center align-items-center rounded-circle bg-secondary mb-3" style="width:120px; height:120px;">
+                                    <i class="bi bi-person-circle text-white" style="font-size: 3rem;"></i>
+                                </span>                            
                             <?php endif; ?>
-                            <h5 class="card-title"><?= htmlspecialchars($user['name']) ?></h5>
+                            <h5 class="card-title"><?= htmlspecialchars($user['first_name'] . ' ' . $user['last_name']) ?></h5>
                             <p class="card-text"><?= htmlspecialchars($user['email']) ?></p>
                             <span class="badge bg-primary"><?= ucfirst($user['role']) ?></span>
                             <p class="text-muted mt-2">Joined: <?= date('F j, Y', strtotime($user['date_created'])) ?></p>
@@ -58,8 +60,12 @@ $user = $stmt->get_result()->fetch_assoc();
                         <div class="card-body">
                             <form action="../actions/update_profile.php" method="POST" enctype="multipart/form-data">
                                 <div class="mb-3">
-                                    <label for="name" class="form-label">Full Name</label>
-                                    <input type="text" class="form-control" id="name" name="name" value="<?= htmlspecialchars($user['name']) ?>" required>
+                                    <label for="firstname" class="form-label">First Name</label>
+                                    <input type="text" class="form-control" id="firstname" name="firstname" value="<?= htmlspecialchars($user['first_name']) ?>" required>
+                                </div>
+                                 <div class="mb-3">
+                                    <label for="lastname" class="form-label">Last Name</label>
+                                    <input type="text" class="form-control" id="lastname" name="lastname" value="<?= htmlspecialchars($user['last_name']) ?>" required>
                                 </div>
                                 <div class="mb-3">
                                     <label for="email" class="form-label">Email Address</label>

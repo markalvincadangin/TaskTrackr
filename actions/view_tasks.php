@@ -111,7 +111,7 @@ $task_result = $task_stmt->get_result();
                                                 <?php
                                                 // Fetch assigned user name
                                                 $assigned_user_id = $task['assigned_to'];
-                                                $user_query = "SELECT name FROM Users WHERE user_id = ?";
+                                                $user_query = "SELECT CONCAT(first_name, ' ', last_name) AS name FROM Users WHERE user_id = ?";
                                                 $user_stmt = $conn->prepare($user_query);
                                                 $user_stmt->bind_param("i", $assigned_user_id);
                                                 $user_stmt->execute();
@@ -191,7 +191,7 @@ $task_result = $task_stmt->get_result();
                                             <option value="">Select Member</option>
                                             <?php
                                             // Fetch members of that group
-                                            $member_query = "SELECT u.user_id, u.name 
+                                            $member_query = "SELECT u.user_id, CONCAT(u.first_name, ' ', u.last_name) AS name 
                                                              FROM Users u 
                                                              INNER JOIN User_Groups ug ON u.user_id = ug.user_id 
                                                              WHERE ug.group_id = ?";

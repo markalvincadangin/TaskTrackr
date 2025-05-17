@@ -13,7 +13,7 @@ $user_id = $_SESSION['user_id'];
 
 // Fetch user groups
 $groups_query = "
-    SELECT g.group_id, g.group_name, g.created_by, u.name AS creator_name
+    SELECT g.group_id, g.group_name, g.created_by, CONCAT(u.first_name, ' ', u.last_name) AS creator_name
     FROM Groups g
     JOIN User_Groups ug ON g.group_id = ug.group_id
     JOIN Users u ON g.created_by = u.user_id
@@ -65,7 +65,7 @@ $group_result = $stmt->get_result();
                                                 <?php
                                                 // Fetch members for this group
                                                 $members_query = "
-                                                    SELECT u.name
+                                                    SELECT u.CONCAT(u.first_name, ' ', u.last_name)
                                                     FROM Users u
                                                     JOIN User_Groups ug ON u.user_id = ug.user_id
                                                     WHERE ug.group_id = ?

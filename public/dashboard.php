@@ -2,11 +2,10 @@
 <?php
 session_start();
 include('../config/db.php');
-include('../actions/send_task_reminders.php');
 
 // 🔐 Authentication Check
 if (!isset($_SESSION['user_id'])) {
-    header("Location: login.php");
+    header("Location: /TaskTrackr/public/login.php");
     exit();
 }
 
@@ -38,7 +37,9 @@ $task_summary = [
     'Overdue' => 0
 ];
 while ($row = $task_summary_result->fetch_assoc()) {
-    $task_summary[$row['status_group']] = $row['count'];
+    if (isset($task_summary[$row['status_group']])) {
+        $task_summary[$row['status_group']] = $row['count'];
+    }
 }
 
 // 📅 Fetch Upcoming Tasks
@@ -64,7 +65,7 @@ $upcoming_tasks_result = $upcoming_tasks_stmt->get_result();
 $events = [];
 while ($task = $upcoming_tasks_result->fetch_assoc()) {
     $events[] = [
-        'title' => htmlspecialchars($task['task_title']),
+        'title' => $task['task_title'], // json_encode is enough for JS
         'start' => $task['due_date'],
         'color' => $task['task_status'] === 'Overdue' ? '#dc3545' : '#0d6efd' // Red for overdue, blue for upcoming
     ];
@@ -107,7 +108,7 @@ while ($project = $projects_result->fetch_assoc()) {
     $tasks_result = $tasks_stmt->get_result();
     $tasks = $tasks_result->fetch_assoc();
     $total = (int)$tasks['total'];
-    $done = (int)$tasks['done'];
+    $done = (int)($tasks['done'] ?? 0);
     $percent = $total > 0 ? round(($done / $total) * 100) : 0;
     $project_cards[] = [
         'title' => $project['title'],
@@ -130,7 +131,7 @@ while ($project = $projects_result->fetch_assoc()) {
             <div class="card shadow-sm rounded p-4 mb-4">
                 <div class="d-flex flex-column flex-md-row justify-content-between align-items-center">
                     <div>
-                        <h2 class="fw-bold mb-2"><i class="bi bi-house-door me-2"></i>Hello, <?= htmlspecialchars($_SESSION['name']); ?>!</h2>
+                        <h2 class="fw-bold mb-2"><i class="bi bi-house-door me-2"></i>Hello, <?= htmlspecialchars($_SESSION['firstname']); ?>!</h2>
                         <p class="text-muted mb-0">Welcome back! Here’s a quick look at your progress.</p>
                     </div>
                 </div>
@@ -247,7 +248,7 @@ while ($project = $projects_result->fetch_assoc()) {
     new Chart(taskChartCtx, {
         type: 'doughnut',
         data: {
-            labels: ['Pending', 'In Progress', 'Completed', 'Overdue'],
+            labels: ['Pending', 'In Progress', 'Done', 'Overdue'],
             datasets: [{
                 data: [
                     <?= $task_summary['Pending']; ?>,

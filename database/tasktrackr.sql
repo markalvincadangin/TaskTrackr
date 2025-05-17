@@ -7,7 +7,8 @@ USE tasktrackr;
 -- Users Table
 CREATE TABLE IF NOT EXISTS Users (
     user_id INT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(255) NOT NULL,
+    first_name VARCHAR(255) NOT NULL,
+    last_name VARCHAR(255) NOT NULL,
     email VARCHAR(255) NOT NULL UNIQUE,
     password VARCHAR(255) NOT NULL,
     profile_picture VARCHAR(255), -- Path to the profile picture
@@ -19,8 +20,9 @@ CREATE TABLE IF NOT EXISTS Users (
 CREATE TABLE IF NOT EXISTS User_Settings (
     user_id INT PRIMARY KEY,
     reminder_days_before INT DEFAULT 1, -- How many days before due date to remind
+    theme ENUM('light', 'dark') DEFAULT 'light',
     FOREIGN KEY (user_id) REFERENCES Users(user_id)
-        ON DELETE CASCADE ON UPDATE CASCADE
+    ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 -- Categories Table
@@ -82,7 +84,7 @@ CREATE TABLE IF NOT EXISTS Tasks (
     date_created DATETIME DEFAULT CURRENT_TIMESTAMP,
     last_reminder_sent DATE NULL DEFAULT NULL,
     FOREIGN KEY (project_id) REFERENCES Projects(project_id)
-        ON DELETE SET NULL ON UPDATE CASCADE,
+        ON DELETE CASCADE ON UPDATE CASCADE,
     FOREIGN KEY (assigned_to) REFERENCES Users(user_id)
         ON DELETE SET NULL ON UPDATE CASCADE
 );
