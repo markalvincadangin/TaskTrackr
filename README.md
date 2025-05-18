@@ -82,7 +82,7 @@ TaskTrackr is a lightweight, modern task management application designed to help
 - For Gmail, use an [App Password](https://myaccount.google.com/apppasswords).
 
 ### 5. Start the Application
-- Open your browser and go to [http://localhost/TaskTrackr](http://localhost/TaskTrackr)
+- Open your browser and go to [http://localhost/TaskTrackr/public/login.php](http://localhost/TaskTrackr/public/login.php)
 
 ---
 
