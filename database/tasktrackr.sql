@@ -92,12 +92,30 @@ CREATE TABLE IF NOT EXISTS Tasks (
 -- Notifications Table
 CREATE TABLE IF NOT EXISTS Notifications (
     notification_id INT AUTO_INCREMENT PRIMARY KEY,
-    user_id INT,
+    user_id INT NOT NULL,
     message TEXT NOT NULL,
     is_read BOOLEAN DEFAULT FALSE,
     date_created DATETIME DEFAULT CURRENT_TIMESTAMP,
+    
+    -- References to related entities
+    related_task_id INT,
+    related_project_id INT,
+    related_group_id INT,
+    related_user_id INT, -- For user-to-user notifications
+    notification_type ENUM('task_update', 'task_assignment', 'project_update', 
+                          'group_update', 'group_invitation', 'reminder', 'general') NOT NULL,
+    
+    -- Foreign keys
     FOREIGN KEY (user_id) REFERENCES Users(user_id)
-        ON DELETE CASCADE ON UPDATE CASCADE
+        ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY (related_task_id) REFERENCES Tasks(task_id)
+        ON DELETE SET NULL ON UPDATE CASCADE,
+    FOREIGN KEY (related_project_id) REFERENCES Projects(project_id)
+        ON DELETE SET NULL ON UPDATE CASCADE,
+    FOREIGN KEY (related_group_id) REFERENCES `Groups`(group_id)
+        ON DELETE SET NULL ON UPDATE CASCADE,
+    FOREIGN KEY (related_user_id) REFERENCES Users(user_id)
+        ON DELETE SET NULL ON UPDATE CASCADE
 );
 
 -- Insert default categories

@@ -24,96 +24,144 @@ while ($user_row = $user_result->fetch_assoc()) {
     $email_stmt->bind_param("i", $user_id);
     $email_stmt->execute();
     $email_result = $email_stmt->get_result();
-    $user_email = $email_result->fetch_assoc()['email'] ?? null;
+    $email = $email_result->fetch_assoc()['email'] ?? null;
 
-    // --- UPCOMING TASKS ---
-    $upcoming_query = "
-        SELECT t.task_id, t.title, t.due_date, t.last_reminder_sent
-        FROM Tasks t
-        WHERE t.assigned_to = ?
-          AND t.due_date > CURDATE()
-          AND t.due_date <= DATE_ADD(CURDATE(), INTERVAL ? DAY)
-          AND t.status != 'Done'
+    // Calculate the date for which to check tasks
+    $check_date = date('Y-m-d', strtotime("+{$remind_days_before} days"));
+
+    // Fetch tasks for this user that are due on the check_date
+    $tasks_query = "
+        SELECT t.*, p.title as project_title, p.project_id
+        FROM Tasks t 
+        LEFT JOIN Projects p ON t.project_id = p.project_id
+        WHERE t.assigned_to = ? 
+        AND t.due_date = ? 
+        AND (t.last_reminder_sent IS NULL OR t.last_reminder_sent != CURDATE())
+        AND t.status != 'Done'
     ";
-    $upcoming_stmt = $conn->prepare($upcoming_query);
-    $upcoming_stmt->bind_param("ii", $user_id, $remind_days_before);
-    $upcoming_stmt->execute();
-    $upcoming_result = $upcoming_stmt->get_result();
+    $tasks_stmt = $conn->prepare($tasks_query);
+    $tasks_stmt->bind_param("is", $user_id, $check_date);
+    $tasks_stmt->execute();
+    $tasks_result = $tasks_stmt->get_result();
 
-    while ($task = $upcoming_result->fetch_assoc()) {
-        // Prevent duplicate reminders
-        if ($task['last_reminder_sent'] === date('Y-m-d')) continue;
-
-        $due_date = new DateTime($task['due_date']);
-        $today = new DateTime();
-        $interval = $today->diff($due_date);
-        $days_left = (int)$interval->format('%a');
-
-        if ($days_left === 1) {
-            $message = "Reminder: Your task '{$task['title']}' is due tomorrow (" . $task['due_date'] . ").";
-        } elseif ($days_left === 0) {
-            $message = "Reminder: Your task '{$task['title']}' is due today (" . $task['due_date'] . ").";
-        } else {
-            $message = "Reminder: Your task '{$task['title']}' is due in {$days_left} days (" . $task['due_date'] . ").";
-        }
-
-        // In-app notification
-        $notify_query = "INSERT INTO Notifications (user_id, message) VALUES (?, ?)";
-        $notify_stmt = $conn->prepare($notify_query);
-        $notify_stmt->bind_param("is", $user_id, $message);
-        $notify_stmt->execute();
-
-        // Email notification
-        if ($user_email) {
-            $subject = "Task Reminder: {$task['title']}";
-            $body = $message;
-            sendUserEmail($user_email, $subject, $body);
-        }
-
-        // Update last_reminder_sent
-        $update_stmt = $conn->prepare("UPDATE Tasks SET last_reminder_sent = CURDATE() WHERE task_id = ?");
+    // For each task found, send a reminder
+    while ($task = $tasks_result->fetch_assoc()) {
+        // Update the last_reminder_sent field
+        $update_query = "UPDATE Tasks SET last_reminder_sent = CURDATE() WHERE task_id = ?";
+        $update_stmt = $conn->prepare($update_query);
         $update_stmt->bind_param("i", $task['task_id']);
         $update_stmt->execute();
+
+        // Format a friendly date for display
+        $friendly_date = date('M j, Y', strtotime($task['due_date']));
+        $days_text = $remind_days_before == 1 ? "tomorrow" : "in {$remind_days_before} days";
+
+        // Create in-app notification
+        $notify_query = "INSERT INTO Notifications (
+            user_id, 
+            message, 
+            related_task_id, 
+            related_project_id,
+            notification_type
+        ) VALUES (?, ?, ?, ?, ?)";
+        
+        $notify_stmt = $conn->prepare($notify_query);
+        $message = "⏰ REMINDER: Task \"" . htmlspecialchars($task['title']) . "\" is due {$days_text} ({$friendly_date})";
+        $notification_type = "reminder";
+        
+        $notify_stmt->bind_param("isiis", 
+            $user_id, 
+            $message, 
+            $task['task_id'], 
+            $task['project_id'],
+            $notification_type
+        );
+        $notify_stmt->execute();
+
+        // Send email if email is available
+        if ($email) {
+            $subject = "Reminder: Task due {$days_text}";
+            $body = "⏰ REMINDER: Your task \"{$task['title']}\" is due {$days_text} ({$friendly_date}).\n\n";
+            
+            if (!empty($task['project_title'])) {
+                $body .= "Project: {$task['project_title']}\n";
+            }
+            
+            $body .= "Priority: {$task['priority']}\n"
+                  . "Description: {$task['description']}\n\n"
+                  . "Please complete this task before the deadline.";
+                  
+            sendUserEmail($email, $subject, $body);
+        }
     }
 
-    // --- OVERDUE TASKS ---
+    // Also check for overdue tasks (tasks where due_date < CURDATE() and status is not 'Done' or 'Overdue')
     $overdue_query = "
-        SELECT t.task_id, t.title, t.due_date, t.last_reminder_sent
-        FROM Tasks t
-        WHERE t.assigned_to = ?
-          AND t.due_date < CURDATE()
-          AND t.status != 'Done'
+        SELECT t.*, p.title as project_title, p.project_id 
+        FROM Tasks t 
+        LEFT JOIN Projects p ON t.project_id = p.project_id
+        WHERE t.assigned_to = ? 
+        AND t.due_date < CURDATE() 
+        AND t.status NOT IN ('Done', 'Overdue')
+        AND (t.last_reminder_sent IS NULL OR t.last_reminder_sent != CURDATE())
     ";
     $overdue_stmt = $conn->prepare($overdue_query);
     $overdue_stmt->bind_param("i", $user_id);
     $overdue_stmt->execute();
     $overdue_result = $overdue_stmt->get_result();
 
+    // For each overdue task, send a notification and update the status
     while ($task = $overdue_result->fetch_assoc()) {
-        // Prevent duplicate reminders
-        if ($task['last_reminder_sent'] === date('Y-m-d')) continue;
+        // Update the task status to 'Overdue'
+        $status_query = "UPDATE Tasks SET status = 'Overdue', last_reminder_sent = CURDATE() WHERE task_id = ?";
+        $status_stmt = $conn->prepare($status_query);
+        $status_stmt->bind_param("i", $task['task_id']);
+        $status_stmt->execute();
 
-        $message = "Alert: Your task '{$task['title']}' is overdue (was due {$task['due_date']}).";
+        // Format a friendly date for display
+        $friendly_date = date('M j, Y', strtotime($task['due_date']));
+        $days_overdue = floor((strtotime('now') - strtotime($task['due_date'])) / (60 * 60 * 24));
+        $days_text = $days_overdue == 1 ? "1 day ago" : "$days_overdue days ago";
 
-        // In-app notification
-        $notify_query = "INSERT INTO Notifications (user_id, message) VALUES (?, ?)";
+        // Create in-app notification
+        $notify_query = "INSERT INTO Notifications (
+            user_id, 
+            message, 
+            related_task_id, 
+            related_project_id,
+            notification_type
+        ) VALUES (?, ?, ?, ?, ?)";
+        
         $notify_stmt = $conn->prepare($notify_query);
-        $notify_stmt->bind_param("is", $user_id, $message);
+        $message = "❗ OVERDUE: Task \"" . htmlspecialchars($task['title']) . "\" was due {$days_text} ({$friendly_date})";
+        $notification_type = "reminder";
+        
+        $notify_stmt->bind_param("isiis", 
+            $user_id, 
+            $message, 
+            $task['task_id'], 
+            $task['project_id'],
+            $notification_type
+        );
         $notify_stmt->execute();
 
-        // Email notification
-        if ($user_email) {
-            $subject = "Task Overdue: {$task['title']}";
-            $body = $message;
-            sendUserEmail($user_email, $subject, $body);
+        // Send email if email is available
+        if ($email) {
+            $subject = "OVERDUE: Task was due {$days_text}";
+            $body = "❗ OVERDUE: Your task \"{$task['title']}\" was due {$days_text} ({$friendly_date}).\n\n";
+            
+            if (!empty($task['project_title'])) {
+                $body .= "Project: {$task['project_title']}\n";
+            }
+            
+            $body .= "Priority: {$task['priority']}\n"
+                  . "Description: {$task['description']}\n\n"
+                  . "Please address this task as soon as possible.";
+                  
+            sendUserEmail($email, $subject, $body);
         }
-
-        // Update last_reminder_sent
-        $update_stmt = $conn->prepare("UPDATE Tasks SET last_reminder_sent = CURDATE() WHERE task_id = ?");
-        $update_stmt->bind_param("i", $task['task_id']);
-        $update_stmt->execute();
     }
 }
 
-echo "Reminders processed.";
+echo "Task reminders sent successfully.";
 ?>

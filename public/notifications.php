@@ -12,7 +12,19 @@ $user_id = $_SESSION['user_id'];
 
 // Fetch notifications for the user
 function fetchNotifications($conn, $user_id) {
-    $query = "SELECT * FROM Notifications WHERE user_id = ? ORDER BY date_created DESC";
+    $query = "SELECT n.*, 
+              t.title AS task_title, 
+              p.title AS project_title,
+              g.group_name,
+              CONCAT(u.first_name, ' ', u.last_name) AS related_user_name
+              FROM Notifications n
+              LEFT JOIN Tasks t ON n.related_task_id = t.task_id
+              LEFT JOIN Projects p ON n.related_project_id = p.project_id
+              LEFT JOIN `Groups` g ON n.related_group_id = g.group_id
+              LEFT JOIN Users u ON n.related_user_id = u.user_id
+              WHERE n.user_id = ? 
+              ORDER BY n.date_created DESC";
+              
     $stmt = $conn->prepare($query);
     if (!$stmt) {
         die("SQL Error: " . $conn->error);
@@ -117,6 +129,23 @@ $notifications = fetchNotifications($conn, $user_id);
                                         <?php endif; ?>
                                         <span class="<?= !$notification['is_read'] ? 'fw-bold' : 'text-muted' ?>">
                                             <?= htmlspecialchars($notification['message']) ?>
+                                            
+                                            <?php if ($notification['related_task_id']): ?>
+                                                <a href="../actions/view_tasks.php?project_id=<?= $notification['related_project_id'] ?>" 
+                                                   class="ms-2 btn btn-sm btn-outline-primary">
+                                                    <i class="bi bi-arrow-right-circle"></i> View Task
+                                                </a>
+                                            <?php elseif ($notification['related_project_id']): ?>
+                                                <a href="../actions/view_tasks.php?project_id=<?= $notification['related_project_id'] ?>" 
+                                                   class="ms-2 btn btn-sm btn-outline-primary">
+                                                    <i class="bi bi-arrow-right-circle"></i> View Project
+                                                </a>
+                                            <?php elseif ($notification['related_group_id']): ?>
+                                                <a href="../actions/edit_group.php?group_id=<?= $notification['related_group_id'] ?>" 
+                                                   class="ms-2 btn btn-sm btn-outline-primary">
+                                                    <i class="bi bi-arrow-right-circle"></i> View Group
+                                                </a>
+                                            <?php endif; ?>
                                         </span>
                                     </div>
                                     <small class="text-muted">

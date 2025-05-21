@@ -19,6 +19,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $assign_to = $_POST['assign_to'];
     $priority = $_POST['priority'];  
     $project_id = $_POST['project_id'];
+    $creator_id = $_SESSION['user_id']; // Get the logged-in user's ID
 
     // Insert the new task into the database
     $query = "INSERT INTO Tasks (title, description, due_date, priority, project_id, assigned_to) 
@@ -27,11 +28,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $stmt->bind_param("ssssii", $title, $description, $due_date, $priority, $project_id, $assign_to);
 
     if ($stmt->execute()) {
+        $task_id = $stmt->insert_id; // Get the ID of the newly created task
+        
         // In-app notification for assigned user
-        $notify_query = "INSERT INTO Notifications (user_id, message) VALUES (?, ?)";
+        $notify_query = "INSERT INTO Notifications (
+            user_id, 
+            message, 
+            related_task_id, 
+            related_project_id, 
+            related_user_id,
+            notification_type
+        ) VALUES (?, ?, ?, ?, ?, ?)";
+        
         $notify_stmt = $conn->prepare($notify_query);
-        $message = "You have been assigned a new task: " . htmlspecialchars($title);
-        $notify_stmt->bind_param("is", $assign_to, $message);
+        $message = "You've been assigned a new task: \"" . htmlspecialchars($title) . "\" due on " . date('M j, Y', strtotime($due_date));
+        $notification_type = "task_assignment";
+        
+        $notify_stmt->bind_param("isiisi", 
+            $assign_to,
+            $message,
+            $task_id,
+            $project_id, 
+            $creator_id,
+            $notification_type
+        );
         $notify_stmt->execute();
 
         // Send email notification
@@ -44,7 +64,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         if ($user_email) {
             $subject = "Task Assignment: $title";
-            $body = "You have been assigned a new task: $title\n\nDescription: $description\n\nDue: $due_date";
+            $body = "You've been assigned a new task: \"$title\"\n\n"
+                  . "Priority: $priority\n"
+                  . "Due Date: " . date('F j, Y', strtotime($due_date)) . "\n\n"
+                  . "Description: $description";
             sendUserEmail($user_email, $subject, $body);
         }
 

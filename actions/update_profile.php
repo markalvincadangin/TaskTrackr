@@ -89,10 +89,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $_SESSION['name'] = $name; // to update the name in the session
 
         // Notify user (in-app)
-        $notify_query = "INSERT INTO Notifications (user_id, message) VALUES (?, ?)";
+        $notify_query = "INSERT INTO Notifications (
+            user_id, 
+            message,
+            related_user_id,
+            notification_type
+        ) VALUES (?, ?, ?, ?)";
+
         $notify_stmt = $conn->prepare($notify_query);
-        $message = "Your profile information was updated.";
-        $notify_stmt->bind_param("is", $user_id, $message);
+        $message = "Your profile information was updated successfully.";
+        $notification_type = "general";
+
+        $notify_stmt->bind_param("isis", 
+            $user_id, 
+            $message,
+            $user_id,
+            $notification_type
+        );
         $notify_stmt->execute();
 
         // Notify user (email)

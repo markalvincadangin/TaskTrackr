@@ -20,7 +20,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $group_id = $_POST['group_id']; 
     $user_id = $_SESSION['user_id'];  // Get the logged-in user's ID
 
-
     $group_id = empty($_POST['group_id']) ? null : $_POST['group_id']; // Set to NULL if not provided
 
     // Prepare SQL query to update project details
@@ -30,44 +29,71 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $result = $stmt->execute();
 
     if ($result) {
-        // If update is successful
         $_SESSION['success_message'] = 'Project updated successfully.';
-
-        // After successful project update, notify all group members
-        $project_stmt = $conn->prepare("SELECT title, group_id FROM Projects WHERE project_id = ?");
-        $project_stmt->bind_param("i", $project_id);
-        $project_stmt->execute();
-        $project_result = $project_stmt->get_result();
-        $project = $project_result->fetch_assoc();
-
-        if (!empty($project['group_id'])) {
-            $members_query = "SELECT u.user_id, u.email FROM Users u
-                              JOIN User_Groups ug ON u.user_id = ug.user_id
-                              WHERE ug.group_id = ?";
+        
+        // If project is assigned to a group, notify all group members
+        if (!empty($group_id)) {
+            // Get group name for the message
+            $group_query = "SELECT group_name FROM Groups WHERE group_id = ?";
+            $group_stmt = $conn->prepare($group_query);
+            $group_stmt->bind_param("i", $group_id);
+            $group_stmt->execute();
+            $group_result = $group_stmt->get_result();
+            $group_name = $group_result->fetch_assoc()['group_name'] ?? 'Unknown group';
+            
+            // Notify all group members about the updated project
+            $members_query = "SELECT user_id FROM User_Groups WHERE group_id = ? AND user_id != ?";
             $members_stmt = $conn->prepare($members_query);
-            $members_stmt->bind_param("i", $project['group_id']);
+            $members_stmt->bind_param("ii", $group_id, $user_id);
             $members_stmt->execute();
             $members_result = $members_stmt->get_result();
-
+            
             while ($member = $members_result->fetch_assoc()) {
-                $notify_query = "INSERT INTO Notifications (user_id, message) VALUES (?, ?)";
+                $notify_query = "INSERT INTO Notifications (
+                    user_id, 
+                    message, 
+                    related_project_id, 
+                    related_group_id, 
+                    related_user_id,
+                    notification_type
+                ) VALUES (?, ?, ?, ?, ?, ?)";
+                
                 $notify_stmt = $conn->prepare($notify_query);
-                $message = "Project '{$project['title']}' has been updated.";
-                $notify_stmt->bind_param("is", $member['user_id'], $message);
+                $message = "Project \"" . htmlspecialchars($title) . "\" has been updated with a deadline of " . date('M j, Y', strtotime($deadline));
+                $notification_type = "project_update";
+                
+                $notify_stmt->bind_param("isiisi", 
+                    $member['user_id'], 
+                    $message, 
+                    $project_id, 
+                    $group_id, 
+                    $user_id,
+                    $notification_type
+                );
                 $notify_stmt->execute();
-
-                if ($member['email']) {
-                    $subject = "Project Updated";
-                    $body = $message;
-                    sendUserEmail($member['email'], $subject, $body);
+    
+                // Also send email notification
+                $email_query = "SELECT email FROM Users WHERE user_id = ?";
+                $email_stmt = $conn->prepare($email_query);
+                $email_stmt->bind_param("i", $member['user_id']);
+                $email_stmt->execute();
+                $email_result = $email_stmt->get_result();
+                $user_email = $email_result->fetch_assoc()['email'] ?? null;
+    
+                if ($user_email) {
+                    $subject = "Project Updated: $title";
+                    $body = "Project \"$title\" in group \"$group_name\" has been updated.\n\n"
+                          . "Deadline: " . date('F j, Y', strtotime($deadline)) . "\n\n"
+                          . "Description: $description";
+                    sendUserEmail($user_email, $subject, $body);
                 }
             }
         }
+        
         header("Location: /TaskTrackr/public/projects.php");
         exit();
     } else {
-        // If there is an error updating
-        $_SESSION['error_message'] = 'Error updating project: ' . $stmt->error;
+        $_SESSION['error_message'] = 'Failed to update project.';
         header("Location: /TaskTrackr/actions/edit_project.php?project_id=" . $project_id);
         exit();
     }

@@ -116,10 +116,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_members'])) {
                 $added_members[] = $email;
 
                 // In-app notification for new group member
-                $notify_query = "INSERT INTO Notifications (user_id, message) VALUES (?, ?)";
+                $notify_query = "INSERT INTO Notifications (
+                    user_id, 
+                    message, 
+                    related_group_id, 
+                    related_user_id,
+                    notification_type
+                ) VALUES (?, ?, ?, ?, ?)";
                 $notify_stmt = $conn->prepare($notify_query);
-                $group_message = "You have been added to the group: " . htmlspecialchars($group['group_name']);
-                $notify_stmt->bind_param("is", $user['user_id'], $group_message);
+                $message = "You have been added to the group \"" . htmlspecialchars($group['group_name']) . "\" by " . htmlspecialchars($_SESSION['firstname'] . ' ' . $_SESSION['lastname']);
+                $notification_type = "group_invitation";
+                $notify_stmt->bind_param("isisi", 
+                    $user['user_id'], 
+                    $message, 
+                    $group_id,
+                    $_SESSION['user_id'],
+                    $notification_type
+                );
                 $notify_stmt->execute();
 
                 // Email notification
@@ -179,10 +192,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['remove_user_id'])) {
         $_SESSION['success_message'] = "Member removed successfully.";
 
         // Notify removed member
-        $notify_query = "INSERT INTO Notifications (user_id, message) VALUES (?, ?)";
+        $notify_query = "INSERT INTO Notifications (
+            user_id, 
+            message, 
+            related_user_id,
+            notification_type
+        ) VALUES (?, ?, ?, ?)";
         $notify_stmt = $conn->prepare($notify_query);
-        $message = "You have been removed from the group: " . htmlspecialchars($group['group_name']);
-        $notify_stmt->bind_param("is", $remove_user_id, $message);
+        $message = "You have been removed from the group \"" . htmlspecialchars($group['group_name']) . "\" by " . htmlspecialchars($_SESSION['firstname'] . ' ' . $_SESSION['lastname']);
+        $notification_type = "group_update";
+        $notify_stmt->bind_param("isis", 
+            $remove_user_id, 
+            $message,
+            $_SESSION['user_id'],
+            $notification_type
+        );
         $notify_stmt->execute();
 
         $email_query = "SELECT email FROM Users WHERE user_id = ?";
