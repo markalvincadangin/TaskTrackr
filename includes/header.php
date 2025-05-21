@@ -47,7 +47,11 @@ $theme = $_SESSION['theme'] ?? 'light';
 <body>
     <!-- Full-width Header -->
     <header class="navbar navbar-expand-lg navbar-light bg-light shadow-sm fixed-top py-2" style="height:64px; z-index:1040;">
-        <div class="container-fluid px-4">
+        <div class="container-fluid px-4"> 
+
+            <button id="sidebarToggle" class="btn btn-outline-primary d-lg-none me-2" type="button" aria-label="Open sidebar">
+                <i class="bi bi-list"></i>
+            </button>
             <!-- Logo and Brand -->
             <a class="navbar-brand fw-bold fs-4 d-flex align-items-center me-4" href="/TaskTrackr/public/dashboard.php" style="height:48px;">
                 <span class="d-none d-sm-inline">TaskTrackr</span>

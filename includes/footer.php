@@ -26,18 +26,25 @@ document.addEventListener('DOMContentLoaded', function () {
     // --- Collapsible Sidebar (Desktop) ---
     if (collapseBtn) {
         collapseBtn.addEventListener('click', function () {
-            sidebar.classList.toggle('collapsed');
-            const icon = collapseBtn.querySelector('i');
-            if (sidebar.classList.contains('collapsed')) {
-                icon.classList.remove('bi-chevron-double-left');
-                icon.classList.add('bi-chevron-double-right');
-                document.body.classList.add('sidebar-collapsed');
-                localStorage.setItem('sidebar-collapsed', 'true');
+            if (window.innerWidth >= 992) {
+                sidebar.classList.toggle('collapsed');
+                const icon = collapseBtn.querySelector('i');
+                if (sidebar.classList.contains('collapsed')) {
+                    icon.classList.remove('bi-chevron-double-left');
+                    icon.classList.add('bi-chevron-double-right');
+                    document.body.classList.add('sidebar-collapsed');
+                    localStorage.setItem('sidebar-collapsed', 'true');
+                } else {
+                    icon.classList.remove('bi-chevron-double-right');
+                    icon.classList.add('bi-chevron-double-left');
+                    document.body.classList.remove('sidebar-collapsed');
+                    localStorage.setItem('sidebar-collapsed', 'false');
+                }
             } else {
-                icon.classList.remove('bi-chevron-double-right');
-                icon.classList.add('bi-chevron-double-left');
-                document.body.classList.remove('sidebar-collapsed');
-                localStorage.setItem('sidebar-collapsed', 'false');
+                // On mobile, close sidebar
+                sidebar.classList.remove('active');
+                if (backdrop) backdrop.classList.remove('show');
+                document.body.style.overflow = '';
             }
             updateSidebarTooltips();
         });
