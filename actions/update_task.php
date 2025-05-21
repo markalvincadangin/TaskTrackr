@@ -27,6 +27,19 @@ if (!$task_id || !$project_id || !$title || !$description || !$deadline || !$sta
     exit();
 }
 
+// Check if project still exists before updating the task
+$project_check_query = "SELECT * FROM Projects WHERE project_id = ?";
+$project_check_stmt = $conn->prepare($project_check_query);
+$project_check_stmt->bind_param("i", $project_id);
+$project_check_stmt->execute();
+$project_check_result = $project_check_stmt->get_result();
+
+if ($project_check_result->num_rows === 0) {
+    $_SESSION['error_message'] = "The project for this task no longer exists.";
+    header("Location: /TaskTrackr/public/projects.php");
+    exit();
+}
+
 // Get original task data to check what's changed
 $original_query = "SELECT * FROM Tasks WHERE task_id = ?";
 $original_stmt = $conn->prepare($original_query);
@@ -120,6 +133,24 @@ if ($stmt->execute()) {
             $notification_type
         );
         $notify_stmt->execute();
+
+        // Send email notification to current assignee
+        $email_query = "SELECT email FROM Users WHERE user_id = ?";
+        $email_stmt = $conn->prepare($email_query);
+        $email_stmt->bind_param("i", $assign_to);
+        $email_stmt->execute();
+        $email_result = $email_stmt->get_result();
+        $user_email = $email_result->fetch_assoc()['email'] ?? null;
+
+        if ($user_email) {
+            $subject = "Task Updated: $title";
+            $body = "Task \"$title\" has been updated$change_summary\n\n"
+                  . "Priority: $priority\n"
+                  . "Status: $status\n"
+                  . "Due Date: " . date('F j, Y', strtotime($deadline)) . "\n\n"
+                  . "Description: $description";
+            sendUserEmail($user_email, $subject, $body);
+        }
     }
 
     $_SESSION['success_message'] = "Task updated successfully.";

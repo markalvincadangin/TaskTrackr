@@ -50,7 +50,13 @@ if (isset($_GET['project_id'])) {
             }
         }
 
-        // If project belongs to the user, proceed to delete
+        // 1. Delete all tasks in this project
+        $delete_tasks_query = "DELETE FROM Tasks WHERE project_id = ?";
+        $delete_tasks_stmt = $conn->prepare($delete_tasks_query);
+        $delete_tasks_stmt->bind_param("i", $project_id);
+        $delete_tasks_stmt->execute();
+
+        // 2. Delete the project
         $delete_query = "DELETE FROM Projects WHERE project_id = ?";
         $delete_stmt = $conn->prepare($delete_query);
         $delete_stmt->bind_param("i", $project_id);

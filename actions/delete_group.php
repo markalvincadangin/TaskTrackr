@@ -60,28 +60,47 @@ while ($member = $members_result->fetch_assoc()) {
 $conn->begin_transaction();
 
 try {
-    // 1. Set group_id to NULL in related Projects (if allowed by foreign key)
-    $nullify_projects = "UPDATE Projects SET group_id = NULL WHERE group_id = ?";
-    $stmt1 = $conn->prepare($nullify_projects);
-    $stmt1->bind_param("i", $group_id);
-    $stmt1->execute();
+    // 1. Get all project IDs in this group
+    $project_ids = [];
+    $project_query = "SELECT project_id FROM Projects WHERE group_id = ?";
+    $project_stmt = $conn->prepare($project_query);
+    $project_stmt->bind_param("i", $group_id);
+    $project_stmt->execute();
+    $project_result = $project_stmt->get_result();
+    while ($row = $project_result->fetch_assoc()) {
+        $project_ids[] = $row['project_id'];
+    }
 
-    // 2. Delete from User_Groups
+    // 2. Delete all tasks in those projects
+    if (!empty($project_ids)) {
+        $in = implode(',', array_fill(0, count($project_ids), '?'));
+        $types = str_repeat('i', count($project_ids));
+        $delete_tasks_sql = "DELETE FROM Tasks WHERE project_id IN ($in)";
+        $delete_tasks_stmt = $conn->prepare($delete_tasks_sql);
+        $delete_tasks_stmt->bind_param($types, ...$project_ids);
+        $delete_tasks_stmt->execute();
+
+        // 3. Delete the projects
+        $delete_projects_sql = "DELETE FROM Projects WHERE project_id IN ($in)";
+        $delete_projects_stmt = $conn->prepare($delete_projects_sql);
+        $delete_projects_stmt->bind_param($types, ...$project_ids);
+        $delete_projects_stmt->execute();
+    }
+
+    // 4. Delete from User_Groups
     $delete_user_groups = "DELETE FROM User_Groups WHERE group_id = ?";
     $stmt2 = $conn->prepare($delete_user_groups);
     $stmt2->bind_param("i", $group_id);
     $stmt2->execute();
 
-    // 3. Delete from Groups
+    // 5. Delete the group
     $delete_group = "DELETE FROM Groups WHERE group_id = ?";
     $stmt3 = $conn->prepare($delete_group);
     $stmt3->bind_param("i", $group_id);
     $stmt3->execute();
 
-    // Commit transaction
     $conn->commit();
-
-    $_SESSION['success_message'] = "Group deleted successfully.";
+    $_SESSION['success_message'] = "Group and all related projects and tasks deleted successfully.";
 } catch (Exception $e) {
     $conn->rollback();
     $_SESSION['error_message'] = "Failed to delete group: " . $e->getMessage();

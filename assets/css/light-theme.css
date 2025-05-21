@@ -589,3 +589,15 @@ body > header + .d-flex,
 body > header + div.d-flex {
     margin-top: 60px;
 }
+
+/* Preserve event color on hover in FullCalendar */
+.fc-event:hover, .fc-task-event:hover,
+.fc-event.fc-event-mirror, .fc-task-event.fc-event-mirror,
+.fc-event.fc-event-selected, .fc-task-event.fc-event-selected {
+    background: inherit !important;
+    color: inherit !important;
+    box-shadow: 0 4px 16px rgba(44,62,80,0.18); /* adjust for dark theme if needed */
+    outline: 2px solid #0d6efd;
+    z-index: 10;
+    cursor: pointer;
+}

@@ -47,9 +47,10 @@ $upcoming_tasks_query = "
     SELECT 
         t.title AS task_title, 
         t.due_date,
+        t.status,
         CASE 
             WHEN t.due_date < CURDATE() AND t.status != 'Done' THEN 'Overdue'
-            ELSE 'Upcoming'
+            ELSE t.status
         END AS task_status
     FROM Tasks t LEFT JOIN Projects p 
     ON t.project_id = p.project_id
@@ -64,10 +65,33 @@ $upcoming_tasks_result = $upcoming_tasks_stmt->get_result();
 // Prepare events for FullCalendar
 $events = [];
 while ($task = $upcoming_tasks_result->fetch_assoc()) {
+    // Assign color and textColor based on status
+    switch ($task['task_status']) {
+        case 'Overdue':
+            $color = '#dc3545'; // Red
+            $textColor = '#fff';
+            break;
+        case 'Pending':
+            $color = '#6c757d'; // Gray
+            $textColor = '#fff';
+            break;
+        case 'In Progress':
+            $color = '#0d6efd'; // Blue
+            $textColor = '#fff';
+            break;
+        case 'Done':
+            $color = '#198754'; // Green
+            $textColor = '#fff';
+            break;
+        default:
+            $color = '#0d6efd'; // Default Blue
+            $textColor = '#fff';
+    }
     $events[] = [
-        'title' => $task['task_title'], // json_encode is enough for JS
+        'title' => $task['task_title'],
         'start' => $task['due_date'],
-        'color' => $task['task_status'] === 'Overdue' ? '#dc3545' : '#0d6efd' // Red for overdue, blue for upcoming
+        'color' => $color,
+        'textColor' => $textColor
     ];
 }
 
@@ -270,7 +294,28 @@ while ($project = $projects_result->fetch_assoc()) {
         const calendarEl = document.getElementById('calendar');
         const calendar = new FullCalendar.Calendar(calendarEl, {
             initialView: 'dayGridMonth',
-            events: <?= json_encode($events); ?>
+            events: <?= json_encode($events); ?>,
+            eventDidMount: function(info) {
+                // Save the original background and text colors
+                const originalBgColor = info.el.style.backgroundColor;
+                const originalTextColor = info.el.style.color;
+
+                info.el.addEventListener('mouseover', function() {
+                    // Only add border/shadow, keep original colors
+                    info.el.style.boxShadow = '0 4px 16px rgba(44,62,80,0.18)';
+                    info.el.style.outline = '2px solid #0d6efd';
+                    info.el.style.zIndex = '10';
+                    info.el.style.backgroundColor = originalBgColor;
+                    info.el.style.color = originalTextColor;
+                });
+                info.el.addEventListener('mouseout', function() {
+                    info.el.style.boxShadow = '';
+                    info.el.style.outline = '';
+                    info.el.style.zIndex = '';
+                    info.el.style.backgroundColor = originalBgColor;
+                    info.el.style.color = originalTextColor;
+                });
+            }
         });
         calendar.render();
     });

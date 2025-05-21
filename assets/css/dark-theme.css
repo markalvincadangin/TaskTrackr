@@ -588,3 +588,8 @@ body > header + .d-flex,
 body > header + div.d-flex {
     margin-top: 60px;
 }
+
+/* Add to assets/css/dark-theme.css */
+body.dark #loadingOverlay {
+    background: rgba(30,32,40,0.85);
+}

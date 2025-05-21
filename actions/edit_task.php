@@ -35,7 +35,7 @@ if ($result->num_rows === 0) {
 $task = $result->fetch_assoc();
 
 // Fetch project group and creator info
-$project_query = "SELECT group_id, created_by FROM Projects WHERE project_id = ?";
+$project_query = "SELECT group_id, created_by, deadline FROM Projects WHERE project_id = ?";
 $project_stmt = $conn->prepare($project_query);
 $project_stmt->bind_param("i", $project_id);
 $project_stmt->execute();
@@ -43,6 +43,7 @@ $project_result = $project_stmt->get_result();
 $project_row = $project_result->fetch_assoc();
 $group_id = $project_row['group_id'];
 $creator_id = $project_row['created_by'];
+$project_deadline = $project_row['deadline'] ?? null;
 ?>
 
 <div class="d-flex">
@@ -77,7 +78,17 @@ $creator_id = $project_row['created_by'];
                                 <!-- Deadline -->
                                 <div class="mb-3">
                                     <label for="deadline" class="form-label">Deadline</label>
-                                    <input type="date" id="deadline" name="deadline" class="form-control" value="<?= htmlspecialchars($task['due_date']) ?>" required>
+                                    <input type="date"
+                                           id="deadline"
+                                           name="deadline"
+                                           class="form-control"
+                                           value="<?= htmlspecialchars($task['due_date']) ?>"
+                                           required
+                                           min="<?= date('Y-m-d') ?>"
+                                           <?php if ($project_deadline): ?>
+                                               max="<?= htmlspecialchars($project_deadline) ?>"
+                                           <?php endif; ?>
+                                    >
                                 </div>
 
                                 <!-- Priority -->

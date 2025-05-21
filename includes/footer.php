@@ -91,5 +91,23 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 </script>
 
+<!-- Loading Overlay -->
+<div id="loadingOverlay" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:2000;background:rgba(255,255,255,0.7);align-items:center;justify-content:center;">
+    <div class="spinner-border text-primary" style="width:3rem;height:3rem;" role="status">
+        <span class="visually-hidden">Loading...</span>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Show loading overlay on any form submit
+    document.querySelectorAll('form').forEach(function(form) {
+        form.addEventListener('submit', function() {
+            document.getElementById('loadingOverlay').style.display = 'flex';
+        });
+    });
+});
+</script>
+
 </body>
 </html>

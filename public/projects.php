@@ -12,6 +12,18 @@ if (!isset($_SESSION['user_id'])) {
 
 $user_id = $_SESSION['user_id'];
 
+// Sorting logic
+$allowed_sort = [
+    'deadline' => 'p.deadline',
+    'title' => 'p.title',
+    'category' => 'c.name',
+    'group' => 'g.group_name',
+    'creator' => 'u.first_name'
+];
+$sort_by = $_GET['sort_by'] ?? 'deadline';
+$sort_dir = strtolower($_GET['sort_dir'] ?? '') === 'desc' ? 'DESC' : 'ASC';
+$order_by = $allowed_sort[$sort_by] ?? 'p.deadline';
+
 // Fetch user's projects with group and creator names in one query
 $project_query = "
     SELECT p.*, c.name AS category_name, g.group_name, CONCAT(u.first_name, ' ', u.last_name) AS creator_name
@@ -23,6 +35,7 @@ $project_query = "
        OR p.group_id IN (
            SELECT group_id FROM User_Groups WHERE user_id = ?
        )
+    ORDER BY $order_by $sort_dir
 ";
 $stmt = $conn->prepare($project_query);
 if (!$stmt) {
@@ -62,6 +75,30 @@ $group_result = $group_stmt->get_result();
                 </button>
             </div>
 
+            <!-- Sorting Filter -->
+            <form method="GET" class="mb-3">
+                <div class="row g-2 align-items-center">
+                    <div class="col-auto">
+                        <label for="sort_by" class="form-label mb-0">Sort by:</label>
+                    </div>
+                    <div class="col-auto">
+                        <select name="sort_by" id="sort_by" class="form-select form-select-sm" onchange="this.form.submit()">
+                            <option value="deadline" <?= ($_GET['sort_by'] ?? '') === 'deadline' ? 'selected' : '' ?>>Deadline</option>
+                            <option value="title" <?= ($_GET['sort_by'] ?? '') === 'title' ? 'selected' : '' ?>>Project Title</option>
+                            <option value="category" <?= ($_GET['sort_by'] ?? '') === 'category' ? 'selected' : '' ?>>Category</option>
+                            <option value="group" <?= ($_GET['sort_by'] ?? '') === 'group' ? 'selected' : '' ?>>Group</option>
+                            <option value="creator" <?= ($_GET['sort_by'] ?? '') === 'creator' ? 'selected' : '' ?>>Created By</option>
+                        </select>
+                    </div>
+                    <div class="col-auto">
+                        <select name="sort_dir" id="sort_dir" class="form-select form-select-sm" onchange="this.form.submit()">
+                            <option value="asc" <?= ($_GET['sort_dir'] ?? '') === 'asc' ? 'selected' : '' ?>>Ascending</option>
+                            <option value="desc" <?= ($_GET['sort_dir'] ?? '') === 'desc' ? 'selected' : '' ?>>Descending</option>
+                        </select>
+                    </div>
+                </div>
+            </form>
+
             <!-- Projects Table Card -->
             <div class="card shadow-sm p-4 mb-4">
                 <div class="card-body p-0">
@@ -90,15 +127,15 @@ $group_result = $group_stmt->get_result();
                                             <td><?= $project['group_name'] ? htmlspecialchars($project['group_name']) : '<span class="text-muted">-</span>' ?></td>
                                             <td><?= htmlspecialchars($project['creator_name']) ?></td>
                                             <td>
-                                                <?php if ($project['created_by'] == $user_id): ?>
-                                                    <div class="d-flex gap-2 flex-wrap">
-                                                        <!-- View Tasks Button -->
-                                                        <form action="../actions/view_tasks.php" method="POST" class="d-inline">
-                                                            <input type="hidden" name="project_id" value="<?= $project['project_id'] ?>">
-                                                            <button type="submit" class="btn btn-info btn-sm" title="View Tasks">
-                                                                <i class="bi bi-list-task"></i>
-                                                            </button>
-                                                        </form>
+                                                <div class="d-flex align-items-center gap-2 flex-nowrap">
+                                                    <!-- View Tasks Button (always visible) -->
+                                                    <form action="../actions/view_tasks.php" method="POST" class="d-inline">
+                                                        <input type="hidden" name="project_id" value="<?= $project['project_id'] ?>">
+                                                        <button type="submit" class="btn btn-info btn-sm" title="View Tasks">
+                                                            <i class="bi bi-list-task"></i>
+                                                        </button>
+                                                    </form>
+                                                    <?php if ($project['created_by'] == $user_id): ?>
                                                         <!-- Edit Button -->
                                                         <form action="../actions/edit_project.php" method="GET" class="d-inline">
                                                             <input type="hidden" name="project_id" value="<?= $project['project_id'] ?>">
@@ -107,16 +144,15 @@ $group_result = $group_stmt->get_result();
                                                             </button>
                                                         </form>
                                                         <!-- Delete Button -->
-                                                        <form action="../actions/delete_project.php" method="GET" class="d-inline" onsubmit="return confirm('Are you sure you want to delete this project?');">
+                                                        <form action="../actions/delete_project.php" method="GET" class="d-inline"
+                                                              onsubmit="return confirm('Are you sure you want to delete this project? All tasks in this project will also be deleted. This action cannot be undone.');">
                                                             <input type="hidden" name="project_id" value="<?= $project['project_id'] ?>">
                                                             <button type="submit" class="btn btn-danger btn-sm" title="Delete">
                                                                 <i class="bi bi-trash"></i>
                                                             </button>
                                                         </form>
-                                                    </div>
-                                                <?php else: ?>
-                                                    <span class="text-muted">-</span>
-                                                <?php endif; ?>
+                                                    <?php endif; ?>
+                                                </div>
                                             </td>
                                         </tr>
                                     <?php endwhile; ?>
@@ -150,7 +186,7 @@ $group_result = $group_stmt->get_result();
                                     </div>
                                     <div class="col-md-6">
                                         <label for="deadline" class="form-label">Deadline</label>
-                                        <input type="date" id="deadline" name="deadline" class="form-control" required>
+                                        <input type="date" id="deadline" name="deadline" class="form-control" required  min="<?= date('Y-m-d') ?>">
                                     </div>
                                     <div class="col-12">
                                         <label for="description" class="form-label">Description</label>

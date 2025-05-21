@@ -131,17 +131,17 @@ $notifications = fetchNotifications($conn, $user_id);
                                             <?= htmlspecialchars($notification['message']) ?>
                                             
                                             <?php if ($notification['related_task_id']): ?>
-                                                <a href="../actions/view_tasks.php?project_id=<?= $notification['related_project_id'] ?>" 
+                                                <a href="../public/tasks.php" 
                                                    class="ms-2 btn btn-sm btn-outline-primary">
                                                     <i class="bi bi-arrow-right-circle"></i> View Task
                                                 </a>
                                             <?php elseif ($notification['related_project_id']): ?>
-                                                <a href="../actions/view_tasks.php?project_id=<?= $notification['related_project_id'] ?>" 
+                                                <a href="../public/projects.php" 
                                                    class="ms-2 btn btn-sm btn-outline-primary">
                                                     <i class="bi bi-arrow-right-circle"></i> View Project
                                                 </a>
                                             <?php elseif ($notification['related_group_id']): ?>
-                                                <a href="../actions/edit_group.php?group_id=<?= $notification['related_group_id'] ?>" 
+                                                <a href="../public/groups.php" 
                                                    class="ms-2 btn btn-sm btn-outline-primary">
                                                     <i class="bi bi-arrow-right-circle"></i> View Group
                                                 </a>

@@ -189,6 +189,44 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['remove_user_id'])) {
         $remove_stmt = $conn->prepare("DELETE FROM User_Groups WHERE user_id = ? AND group_id = ?");
         $remove_stmt->bind_param("ii", $remove_user_id, $group_id);
         $remove_stmt->execute();
+
+        // --- Delete user's projects in this group ---
+        $project_ids = [];
+        $project_query = "SELECT project_id FROM Projects WHERE group_id = ? AND created_by = ?";
+        $project_stmt = $conn->prepare($project_query);
+        $project_stmt->bind_param("ii", $group_id, $remove_user_id);
+        $project_stmt->execute();
+        $project_result = $project_stmt->get_result();
+        while ($row = $project_result->fetch_assoc()) {
+            $project_ids[] = $row['project_id'];
+        }
+
+        // Delete all tasks in those projects
+        if (!empty($project_ids)) {
+            $in = implode(',', array_fill(0, count($project_ids), '?'));
+            $types = str_repeat('i', count($project_ids));
+            $delete_tasks_sql = "DELETE FROM Tasks WHERE project_id IN ($in)";
+            $delete_tasks_stmt = $conn->prepare($delete_tasks_sql);
+            $delete_tasks_stmt->bind_param($types, ...$project_ids);
+            $delete_tasks_stmt->execute();
+
+            // Delete the projects
+            $delete_projects_sql = "DELETE FROM Projects WHERE project_id IN ($in)";
+            $delete_projects_stmt = $conn->prepare($delete_projects_sql);
+            $delete_projects_stmt->bind_param($types, ...$project_ids);
+            $delete_projects_stmt->execute();
+        }
+
+        // --- Delete tasks assigned to the user in this group (but not their own projects) ---
+        $delete_user_tasks_sql = "
+            DELETE t FROM Tasks t
+            INNER JOIN Projects p ON t.project_id = p.project_id
+            WHERE t.assigned_to = ? AND p.group_id = ?
+        ";
+        $delete_user_tasks_stmt = $conn->prepare($delete_user_tasks_sql);
+        $delete_user_tasks_stmt->bind_param("ii", $remove_user_id, $group_id);
+        $delete_user_tasks_stmt->execute();
+
         $_SESSION['success_message'] = "Member removed successfully.";
 
         // Notify removed member
@@ -216,14 +254,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['remove_user_id'])) {
         $email_result = $email_stmt->get_result();
         $user_email = $email_result->fetch_assoc()['email'] ?? null;
 
-        $settings_query = "SELECT email_notifications FROM User_Settings WHERE user_id = ?";
-        $settings_stmt = $conn->prepare($settings_query);
-        $settings_stmt->bind_param("i", $remove_user_id);
-        $settings_stmt->execute();
-        $settings_result = $settings_stmt->get_result();
-        $email_enabled = $settings_result->fetch_assoc()['email_notifications'] ?? 0;
-
-        if ($user_email && $email_enabled) {
+        if ($user_email) {
             $subject = "Removed from Group: {$group['group_name']}";
             $body = "You have been removed from the group: {$group['group_name']}.";
             sendUserEmail($user_email, $subject, $body);
@@ -326,9 +357,10 @@ $members_result = $members_stmt->get_result();
                                         </td>
                                         <td class="text-center">
                                             <?php if ($member['user_id'] != $group['created_by']): ?>
-                                                <form method="POST" class="d-inline">
+                                                <form method="POST" class="d-inline"
+                                                      onsubmit="return confirm('Are you sure you want to remove this member? All their projects and tasks in this group will also be deleted. This action cannot be undone.');">
                                                     <input type="hidden" name="remove_user_id" value="<?= $member['user_id'] ?>">
-                                                    <button type="submit" class="btn btn-danger btn-sm" title="Remove" onclick="return confirm('Remove this member?')">
+                                                    <button type="submit" class="btn btn-danger btn-sm" title="Remove">
                                                         <i class="bi bi-trash"></i>
                                                     </button>
                                                 </form>

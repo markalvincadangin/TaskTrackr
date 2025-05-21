@@ -18,8 +18,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $due_date = $_POST['deadline'];  // Ensure this matches your form field name
     $assign_to = $_POST['assign_to'];
     $priority = $_POST['priority'];  
-    $project_id = $_POST['project_id'];
+    $project_id = $_POST['project_id'] ?? null;
     $creator_id = $_SESSION['user_id']; // Get the logged-in user's ID
+
+    // Check if the user is the creator of the project
+    $project_query = "SELECT created_by FROM Projects WHERE project_id = ?";
+    $project_stmt = $conn->prepare($project_query);
+    $project_stmt->bind_param("i", $project_id);
+    $project_stmt->execute();
+    $project_result = $project_stmt->get_result();
+    $project = $project_result->fetch_assoc();
+
+    if (!$project || $project['created_by'] != $creator_id) {
+        $_SESSION['error_message'] = "You are not authorized to add tasks to this project.";
+        header("Location: /TaskTrackr/actions/view_tasks.php?project_id=" . $project_id);
+        exit();
+    }
 
     // Insert the new task into the database
     $query = "INSERT INTO Tasks (title, description, due_date, priority, project_id, assigned_to) 

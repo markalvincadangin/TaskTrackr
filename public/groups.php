@@ -11,6 +11,14 @@ if (!isset($_SESSION['user_id'])) {
 
 $user_id = $_SESSION['user_id'];
 
+$allowed_sort = [
+    'group_name' => 'g.group_name',
+    'creator' => 'u.first_name'
+];
+$sort_by = $_GET['sort_by'] ?? 'group_name';
+$sort_dir = strtolower($_GET['sort_dir'] ?? '') === 'desc' ? 'DESC' : 'ASC';
+$order_by = $allowed_sort[$sort_by] ?? 'g.group_name';
+
 // Fetch user groups
 $groups_query = "
     SELECT g.group_id, g.group_name, g.created_by, CONCAT(u.first_name, ' ', u.last_name) AS creator_name
@@ -18,6 +26,7 @@ $groups_query = "
     JOIN User_Groups ug ON g.group_id = ug.group_id
     JOIN Users u ON g.created_by = u.user_id
     WHERE ug.user_id = ?
+    ORDER BY $order_by $sort_dir
 ";
 $stmt = $conn->prepare($groups_query);
 $stmt->bind_param("i", $user_id);
@@ -40,6 +49,27 @@ $group_result = $stmt->get_result();
                     <i class="bi bi-plus-circle me-2"></i> Create Group
                 </button>
             </div>
+
+            <!-- Sorting Filter -->
+            <form method="GET" class="mb-3">
+                <div class="row g-2 align-items-center">
+                    <div class="col-auto">
+                        <label for="sort_by" class="form-label mb-0">Sort by:</label>
+                    </div>
+                    <div class="col-auto">
+                        <select name="sort_by" id="sort_by" class="form-select form-select-sm" onchange="this.form.submit()">
+                            <option value="group_name" <?= ($_GET['sort_by'] ?? '') === 'group_name' ? 'selected' : '' ?>>Group Name</option>
+                            <option value="creator" <?= ($_GET['sort_by'] ?? '') === 'creator' ? 'selected' : '' ?>>Created By</option>
+                        </select>
+                    </div>
+                    <div class="col-auto">
+                        <select name="sort_dir" id="sort_dir" class="form-select form-select-sm" onchange="this.form.submit()">
+                            <option value="asc" <?= ($_GET['sort_dir'] ?? '') === 'asc' ? 'selected' : '' ?>>Ascending</option>
+                            <option value="desc" <?= ($_GET['sort_dir'] ?? '') === 'desc' ? 'selected' : '' ?>>Descending</option>
+                        </select>
+                    </div>
+                </div>
+            </form>
 
             <!-- Group List Section -->
             <div class="card shadow-sm p-4 mb-4">
@@ -78,8 +108,12 @@ $group_result = $stmt->get_result();
                                                 while ($member = $members_result->fetch_assoc()) {
                                                     $member_names[] = htmlspecialchars($member['name']);
                                                 }
-                                                echo implode(', ', $member_names);
                                                 ?>
+                                                <ul class="mb-0 ps-3">
+                                                    <?php foreach ($member_names as $name): ?>
+                                                        <li><?= $name ?></li>
+                                                    <?php endforeach; ?>
+                                                </ul>
                                             </td>
                                             <td>
                                                 <div class="d-flex flex-wrap gap-2">
@@ -87,7 +121,10 @@ $group_result = $stmt->get_result();
                                                     <a href="../actions/edit_group.php?group_id=<?= $group['group_id'] ?>" class="btn btn-warning btn-sm" title="Edit">
                                                         <i class="bi bi-pencil-square"></i>
                                                     </a>
-                                                    <a href="../actions/delete_group.php?group_id=<?= $group['group_id'] ?>" class="btn btn-danger btn-sm" title="Delete" onclick="return confirm('Are you sure you want to delete this group?');">
+                                                    <a href="../actions/delete_group.php?group_id=<?= $group['group_id'] ?>"
+                                                       class="btn btn-danger btn-sm"
+                                                       title="Delete"
+                                                       onclick="return confirm('Are you sure you want to delete this group? All projects and tasks in this group will also be deleted. This action cannot be undone.');">
                                                         <i class="bi bi-trash"></i>
                                                     </a>
                                                 <?php else: ?>
