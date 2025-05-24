@@ -69,29 +69,23 @@ while ($task = $upcoming_tasks_result->fetch_assoc()) {
     switch ($task['task_status']) {
         case 'Overdue':
             $color = '#dc3545'; // Red
-            $textColor = 'black';
             break;
         case 'Pending':
             $color = '#6c757d'; // Gray
-            $textColor = 'black';
             break;
         case 'In Progress':
             $color = '#0d6efd'; // Blue
-            $textColor = 'black';
             break;
         case 'Done':
             $color = '#198754'; // Green
-            $textColor = 'black';
             break;
         default:
             $color = '#0d6efd'; // Default Blue
-            $textColor = 'black';
     }
     $events[] = [
         'title' => $task['task_title'],
         'start' => $task['due_date'],
         'color' => $color,
-        'textColor' => $textColor
     ];
 }
 
@@ -292,20 +286,44 @@ while ($project = $projects_result->fetch_assoc()) {
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         const calendarEl = document.getElementById('calendar');
+        // Add Bootstrap classes to the calendar container
+        calendarEl.classList.add('rounded', 'shadow-sm', 'p-3', 'mb-3', 'border');
+
         const calendar = new FullCalendar.Calendar(calendarEl, {
             initialView: 'dayGridMonth',
             events: <?= json_encode($events); ?>,
+            headerToolbar: {
+                left: 'today',
+                center: 'title',
+                right: 'prev,next'
+            },
             eventDidMount: function(info) {
-                info.el.addEventListener('mouseover', function() {
-                    info.el.style.boxShadow = '0 4px 16px rgba(44,62,80,0.18)';
-                    info.el.style.outline = '2px solid rgb(1, 6, 14)';
-                    info.el.style.zIndex = '10';
-                    info.el.style.transition = 'box-shadow 0.2s ease, outline 0.2s ease, z-index 0.2s ease';
+                // Create a tooltip div if not exists
+                let tooltip = document.getElementById('fc-event-tooltip');
+                if (!tooltip) {
+                    tooltip = document.createElement('div');
+                    tooltip.id = 'fc-event-tooltip';
+                    tooltip.style.position = 'absolute';
+                    tooltip.style.zIndex = 9999;
+                    tooltip.style.background = '#23273a';
+                    tooltip.style.color = '#fff';
+                    tooltip.style.padding = '6px 12px';
+                    tooltip.style.borderRadius = '6px';
+                    tooltip.style.boxShadow = '0 2px 8px rgba(0,0,0,0.18)';
+                    tooltip.style.display = 'none';
+                    tooltip.style.pointerEvents = 'none';
+                    document.body.appendChild(tooltip);
+                }
+                info.el.addEventListener('mouseenter', function(e) {
+                    tooltip.textContent = info.event.title;
+                    tooltip.style.display = 'block';
                 });
-                info.el.addEventListener('mouseout', function() {
-                    info.el.style.boxShadow = '';
-                    info.el.style.outline = '';
-                    info.el.style.zIndex = '';
+                info.el.addEventListener('mousemove', function(e) {
+                    tooltip.style.left = (e.pageX + 12) + 'px';
+                    tooltip.style.top = (e.pageY + 12) + 'px';
+                });
+                info.el.addEventListener('mouseleave', function() {
+                    tooltip.style.display = 'none';
                 });
             }
         });

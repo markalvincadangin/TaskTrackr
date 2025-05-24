@@ -593,3 +593,11 @@ body > header + div.d-flex {
 body.dark #loadingOverlay {
     background: rgba(30,32,40,0.85);
 }
+
+.fc-event-title.fc-sticky:hover {
+    background: #FFD700;
+    color: #003366;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+}

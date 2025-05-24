@@ -575,3 +575,11 @@ body > header + .d-flex,
 body > header + div.d-flex {
     margin-top: 60px;
 }
+
+.fc-event-title.fc-sticky:hover {
+    background: #FFD700;
+    color: #003366;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+}
