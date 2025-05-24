@@ -54,7 +54,10 @@ $theme = $_SESSION['theme'] ?? 'light';
             </button>
             <!-- Logo and Brand -->
             <a class="navbar-brand fw-bold fs-4 d-flex align-items-center me-4" href="/TaskTrackr/public/dashboard.php" style="height:48px;">
-                <span class="d-none d-sm-inline">TaskTrackr</span>
+                <img src="../assets/images/tasktrackr-logo.png" alt="TaskTrackr Logo" class="img-fluid" style="height:32px; width:auto; margin-right:8px;">
+                <span class="fw-bold" style="letter-spacing:2px; text-shadow:0 2px 8px #0d6efd22, 0 1px 0 #fff; font-family: 'Segoe UI', 'Arial', sans-serif; font-size:1.5rem;">
+                    TaskTrackr
+                </span>
             </a>
             <div class="d-flex align-items-center gap-3 ms-auto">
                 <!-- Notifications Icon -->

@@ -152,11 +152,6 @@ h1, h2, h3, h4, h5, h6,
 .sidebar.collapsed .sidebar-toggle-btn {
     left: 60px;
 }
-@media (max-width: 991.98px) {
-    .sidebar-toggle-btn {
-        display: none;
-    }
-}
 
 /* Header Styling */
 header, .navbar, .navbar-light, .navbar.bg-light {
@@ -564,40 +559,19 @@ a:hover, .nav-link:hover, .dropdown-item:hover {
         width: 60px;
         min-width: 60px;
     }
-    #sidebarCollapse {
-        display: none;
-    }
     .sidebar-backdrop {
         display: none;
-        position: fixed;
-        top: 60px;
-        left: 0;
-        width: 100vw;
-        height: calc(100vh - 60px);
-        background: rgba(0,0,0,0.3);
-        z-index: 1049;
-    }
-    .sidebar-backdrop.show {
-        display: block;
     }
     .main-content {
         margin-left: 0 !important;
+    }
+    .sidebar-toggle-btn {
+        left: 10px;
+        top: 70px;
     }
 }
 /* Add a spacer after the fixed header */
 body > header + .d-flex,
 body > header + div.d-flex {
     margin-top: 60px;
-}
-
-/* Preserve event color on hover in FullCalendar */
-.fc-event:hover, .fc-task-event:hover,
-.fc-event.fc-event-mirror, .fc-task-event.fc-event-mirror,
-.fc-event.fc-event-selected, .fc-task-event.fc-event-selected {
-    background: inherit !important;
-    color: inherit !important;
-    box-shadow: 0 4px 16px rgba(44,62,80,0.18); /* adjust for dark theme if needed */
-    outline: 2px solid #0d6efd;
-    z-index: 10;
-    cursor: pointer;
 }

@@ -3,6 +3,18 @@
 <div class="container-fluid min-vh-100 d-flex justify-content-center align-items-center" style="background: #f8f9fa;">
     <div class="card shadow-lg p-4" style="width: 100%; max-width: 400px;">
         <div class="text-center mb-4">
+            <!-- Logo and Brand -->
+            <div class="d-flex justify-content-center mb-3">
+                <a class="navbar-brand fw-bold fs-4 d-flex align-items-center mx-auto" style="height:48px;">
+                    <span class="d-flex align-items-center">
+                        <img src="../assets/images/tasktrackr-logo.png" alt="TaskTrackr Logo" class="img-fluid" style="height:32px; width:auto; margin-right:8px;">
+                        <span class="fw-bold"
+                              style="letter-spacing:2px; color:#0d6efd; text-shadow:0 2px 8px #0d6efd22, 0 1px 0 #fff; font-family: 'Segoe UI', 'Arial', sans-serif; font-size:1.5rem;">
+                            TaskTrackr
+                        </span>
+                    </span>
+                </a>
+            </div>
             <h2 class="mt-2 mb-0 fw-bold">Register</h2>
             <p class="text-muted small mb-0">Create your TaskTrackr account</p>
         </div>

@@ -69,23 +69,23 @@ while ($task = $upcoming_tasks_result->fetch_assoc()) {
     switch ($task['task_status']) {
         case 'Overdue':
             $color = '#dc3545'; // Red
-            $textColor = '#fff';
+            $textColor = 'black';
             break;
         case 'Pending':
             $color = '#6c757d'; // Gray
-            $textColor = '#fff';
+            $textColor = 'black';
             break;
         case 'In Progress':
             $color = '#0d6efd'; // Blue
-            $textColor = '#fff';
+            $textColor = 'black';
             break;
         case 'Done':
             $color = '#198754'; // Green
-            $textColor = '#fff';
+            $textColor = 'black';
             break;
         default:
             $color = '#0d6efd'; // Default Blue
-            $textColor = '#fff';
+            $textColor = 'black';
     }
     $events[] = [
         'title' => $task['task_title'],
@@ -296,24 +296,16 @@ while ($project = $projects_result->fetch_assoc()) {
             initialView: 'dayGridMonth',
             events: <?= json_encode($events); ?>,
             eventDidMount: function(info) {
-                // Save the original background and text colors
-                const originalBgColor = info.el.style.backgroundColor;
-                const originalTextColor = info.el.style.color;
-
                 info.el.addEventListener('mouseover', function() {
-                    // Only add border/shadow, keep original colors
                     info.el.style.boxShadow = '0 4px 16px rgba(44,62,80,0.18)';
-                    info.el.style.outline = '2px solid #0d6efd';
+                    info.el.style.outline = '2px solid rgb(1, 6, 14)';
                     info.el.style.zIndex = '10';
-                    info.el.style.backgroundColor = originalBgColor;
-                    info.el.style.color = originalTextColor;
+                    info.el.style.transition = 'box-shadow 0.2s ease, outline 0.2s ease, z-index 0.2s ease';
                 });
                 info.el.addEventListener('mouseout', function() {
                     info.el.style.boxShadow = '';
                     info.el.style.outline = '';
                     info.el.style.zIndex = '';
-                    info.el.style.backgroundColor = originalBgColor;
-                    info.el.style.color = originalTextColor;
                 });
             }
         });
