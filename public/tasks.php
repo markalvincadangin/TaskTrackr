@@ -247,7 +247,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                                                 <input type="hidden" name="task_id" value="<?= $task['task_id'] ?>">
                                                                 <input type="hidden" name="status" value="Done">
                                                                 <label class="mb-0">
-                                                                    <input type="checkbox" onchange="this.form.submit()"> Mark as Done
+                                                                    <input type="checkbox" onchange="document.getElementById('loadingOverlay').style.display='flex'; this.form.submit();"> Mark as Done
                                                                 </label>
                                                             </form>
                                                         <?php elseif ($task['status'] === 'Done'): ?>

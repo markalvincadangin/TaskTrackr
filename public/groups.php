@@ -121,12 +121,12 @@ $group_result = $stmt->get_result();
                                                     <a href="../actions/edit_group.php?group_id=<?= $group['group_id'] ?>" class="btn btn-warning btn-sm" title="Edit">
                                                         <i class="bi bi-pencil-square"></i>
                                                     </a>
-                                                    <a href="../actions/delete_group.php?group_id=<?= $group['group_id'] ?>"
-                                                       class="btn btn-danger btn-sm"
-                                                       title="Delete"
-                                                       onclick="return confirm('Are you sure you want to delete this group? All projects and tasks in this group will also be deleted. This action cannot be undone.');">
-                                                        <i class="bi bi-trash"></i>
-                                                    </a>
+                                                    <form action="../actions/delete_group.php" method="GET" class="d-inline" onsubmit="return confirm('Are you sure you want to delete this group? All projects and tasks in this group will also be deleted. This action cannot be undone.');">
+                                                        <input type="hidden" name="group_id" value="<?= $group['group_id'] ?>">
+                                                        <button type="submit" class="btn btn-danger btn-sm" title="Delete">
+                                                            <i class="bi bi-trash"></i>
+                                                        </button>
+                                                    </form>
                                                 <?php else: ?>
                                                     <span class="text-muted">-</span>
                                                 <?php endif; ?>
